@@ -375,3 +375,8 @@ a:hover {
   margin-top: 6px;
   line-height: 1.4;
 }
+
+@media print {
+  .no-print { display: none !important; }
+  body { background: #fff !important; }
+}

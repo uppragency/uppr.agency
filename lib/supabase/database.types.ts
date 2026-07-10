@@ -3,6 +3,7 @@
 
 export type UserRole = "admin" | "client";
 export type ArticleStatus = "draft" | "published";
+export type ReportStatus = "draft" | "published";
 
 export interface Database {
   __InternalSupabase: {
@@ -95,6 +96,8 @@ export interface Database {
           recommendation_2: string | null;
           recommendation_3: string | null;
           recommendation_4: string | null;
+          status: ReportStatus;
+          internal_note: string | null;
           created_at: string;
           updated_at: string;
         };
@@ -112,6 +115,8 @@ export interface Database {
           recommendation_2?: string | null;
           recommendation_3?: string | null;
           recommendation_4?: string | null;
+          status?: ReportStatus;
+          internal_note?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -166,6 +171,7 @@ export interface Database {
     Enums: {
       user_role: UserRole;
       article_status: ArticleStatus;
+      report_status: ReportStatus;
     };
     CompositeTypes: Record<string, never>;
   };

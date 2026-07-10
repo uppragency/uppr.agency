@@ -44,6 +44,7 @@ const emptyForm = {
   recommendation_2: "",
   recommendation_3: "",
   recommendation_4: "",
+  internal_note: "",
 };
 
 export default function ReportForm({
@@ -74,6 +75,7 @@ export default function ReportForm({
           recommendation_2: report.recommendation_2 ?? "",
           recommendation_3: report.recommendation_3 ?? "",
           recommendation_4: report.recommendation_4 ?? "",
+          internal_note: report.internal_note ?? "",
         }
       : emptyForm
   );
@@ -123,13 +125,15 @@ export default function ReportForm({
     setNewsletterDrafts((drafts) => drafts.filter((_, i) => i !== index));
   }
 
-  async function handleSave() {
+  async function handleSave(status: "draft" | "published") {
     setSaving(true);
     setError(null);
 
+    const payload = { ...form, status };
+
     const reportQuery = report
-      ? supabase.from("campaign_reports").update(form).eq("id", report.id).select().single()
-      : supabase.from("campaign_reports").insert({ ...form, client_id: clientId }).select().single();
+      ? supabase.from("campaign_reports").update(payload).eq("id", report.id).select().single()
+      : supabase.from("campaign_reports").insert({ ...payload, client_id: clientId }).select().single();
 
     const { data: savedReport, error: reportError } = await reportQuery;
 
@@ -161,6 +165,16 @@ export default function ReportForm({
         setSaving(false);
         return;
       }
+    }
+
+    if (status === "published") {
+      fetch("/api/notify-report", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ reportId: savedReport.id }),
+      }).catch(() => {
+        // notificarea e best-effort — nu blocăm salvarea raportului dacă eșuează
+      });
     }
 
     setSaving(false);
@@ -297,15 +311,34 @@ export default function ReportForm({
         </div>
       </div>
 
+      <div className="uppr-card" style={{ borderColor: "rgba(251,191,36,.25)" }}>
+        <div className="uppr-card-inner space-y-3">
+          <span className="uppr-label" style={{ color: "#FBBF24" }}>
+            🔒 Notă internă (nevăzută de client)
+          </span>
+          <textarea
+            placeholder="Context intern, de reamintit data viitoare..."
+            className="uppr-input"
+            value={form.internal_note}
+            onChange={(e) => update("internal_note", e.target.value)}
+          />
+        </div>
+      </div>
+
       {error && (
         <p className="text-sm" style={{ color: "var(--uppr-pink)" }}>
           {error}
         </p>
       )}
 
-      <button onClick={handleSave} disabled={saving} className="uppr-btn-primary">
-        {saving ? "Se salvează..." : "Salvează raport →"}
-      </button>
+      <div className="flex gap-3">
+        <button onClick={() => handleSave("draft")} disabled={saving} className="uppr-btn-secondary">
+          {saving ? "Se salvează..." : "Salvează draft"}
+        </button>
+        <button onClick={() => handleSave("published")} disabled={saving} className="uppr-btn-primary">
+          {saving ? "Se salvează..." : "Publică raport →"}
+        </button>
+      </div>
     </div>
   );
 }

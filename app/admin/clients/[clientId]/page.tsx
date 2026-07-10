@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import DuplicateReportButton from "@/components/admin/DuplicateReportButton";
 
 const LUNI = [
   "Ianuarie", "Februarie", "Martie", "Aprilie", "Mai", "Iunie",
@@ -25,7 +26,7 @@ export default async function ClientReportsPage({
 
   const { data: reports } = await supabase
     .from("campaign_reports")
-    .select("id, month, year, ecom_revenue, newsletters(revenue)")
+    .select("id, month, year, ecom_revenue, status, newsletters(revenue)")
     .eq("client_id", clientId)
     .order("year", { ascending: false })
     .order("month", { ascending: false });
@@ -69,6 +70,7 @@ export default async function ClientReportsPage({
             <thead>
               <tr>
                 <th>Lună</th>
+                <th>Status</th>
                 <th>Newsletter-e</th>
                 <th>Revenue campanii</th>
                 <th>Revenue ecommerce</th>
@@ -81,10 +83,15 @@ export default async function ClientReportsPage({
                   <td style={{ fontWeight: 600 }}>
                     {LUNI[report.month - 1]} {report.year}
                   </td>
+                  <td>
+                    <span className={report.status === "published" ? "uppr-badge uppr-badge-live" : "uppr-badge uppr-badge-draft"}>
+                      {report.status === "published" ? "Publicat" : "Draft"}
+                    </span>
+                  </td>
                   <td>{report.newsletterCount}</td>
                   <td>{report.campaignRevenue.toLocaleString("ro-RO")} Lei</td>
                   <td>{report.ecom_revenue} Lei</td>
-                  <td>
+                  <td style={{ display: "flex", gap: 14, alignItems: "center" }}>
                     <Link
                       href={`/admin/clients/${clientId}/${report.id}`}
                       className="text-sm font-semibold"
@@ -92,12 +99,13 @@ export default async function ClientReportsPage({
                     >
                       Editează →
                     </Link>
+                    <DuplicateReportButton reportId={report.id} clientId={clientId} />
                   </td>
                 </tr>
               ))}
               {!reportsWithTotals?.length && (
                 <tr>
-                  <td colSpan={5} className="text-center py-10" style={{ color: "var(--uppr-muted)" }}>
+                  <td colSpan={6} className="text-center py-10" style={{ color: "var(--uppr-muted)" }}>
                     Niciun raport încă.
                   </td>
                 </tr>

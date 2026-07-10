@@ -1,6 +1,9 @@
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
-import RevenueTrendChart from "@/components/dashboard/RevenueTrendChart";
+import RevenueTrendSection from "@/components/dashboard/RevenueTrendSection";
 import NewsletterEngagementChart from "@/components/dashboard/NewsletterEngagementChart";
+import RevenueDonutChart from "@/components/dashboard/RevenueDonutChart";
+import DeltaBadge from "@/components/dashboard/DeltaBadge";
 
 const LUNI = [
   "Ianuarie", "Februarie", "Martie", "Aprilie", "Mai", "Iunie",
@@ -9,12 +12,26 @@ const LUNI = [
 const LUNI_SCURT = [
   "Ian", "Feb", "Mar", "Apr", "Mai", "Iun", "Iul", "Aug", "Sep", "Oct", "Noi", "Dec",
 ];
+const mono = { fontFamily: "var(--font-mono-label), monospace" } as const;
 
-function StatRow({ label, value }: { label: string; value: string | number }) {
+function StatRow({
+  label,
+  value,
+  current,
+  previous,
+}: {
+  label: string;
+  value: string | number;
+  current?: number;
+  previous?: number | null;
+}) {
   return (
     <div className="flex justify-between items-center py-2" style={{ borderBottom: "1px solid rgba(255,255,255,.05)" }}>
       <dt className="text-sm" style={{ color: "var(--uppr-muted)" }}>{label}</dt>
-      <dd style={{ fontFamily: "var(--font-mono-label), monospace", fontWeight: 700, fontSize: "14px" }}>{value}</dd>
+      <dd style={{ display: "flex", alignItems: "center", gap: 8 }}>
+        <span style={{ ...mono, fontWeight: 700, fontSize: 14 }}>{value}</span>
+        {current !== undefined && <DeltaBadge current={current} previous={previous ?? null} />}
+      </dd>
     </div>
   );
 }
@@ -22,11 +39,13 @@ function StatRow({ label, value }: { label: string; value: string | number }) {
 export default async function DashboardPage() {
   const supabase = await createClient();
 
-  // RLS ("Clients view own reports") filtrează automat după client_id
-  // pe baza profilului userului autentificat — nu e nevoie de filtru manual aici.
+  // RLS ("Clients view own published reports") filtrează automat după
+  // client_id și status='published' — nu e nevoie de filtru manual aici.
   const { data: reports } = await supabase
     .from("campaign_reports")
-    .select("*, newsletters(*)")
+    .select(
+      "id, client_id, month, year, ecom_sent_emails, ecom_clicks, ecom_conversion_rate, ecom_transactions, ecom_revenue, recommendation_1, recommendation_2, recommendation_3, recommendation_4, status, created_at, updated_at, newsletters(*)"
+    )
     .order("year", { ascending: false })
     .order("month", { ascending: false });
 
@@ -67,18 +86,9 @@ export default async function DashboardPage() {
         </div>
       )}
 
-      {trendData.length > 1 && (
-        <div className="uppr-card">
-          <div className="uppr-card-inner">
-            <span className="uppr-label block mb-3" style={{ color: "var(--uppr-violet-3)" }}>
-              Trend revenue — toate lunile
-            </span>
-            <RevenueTrendChart data={trendData} />
-          </div>
-        </div>
-      )}
+      {trendData.length > 1 && <RevenueTrendSection data={trendData} />}
 
-      {reports?.map((report) => {
+      {reports?.map((report, idx) => {
         const newsletters = report.newsletters ?? [];
         const campaignRevenue = newsletters.reduce((sum, n) => sum + Number(n.revenue), 0);
         const engagementData = newsletters.map((n) => ({
@@ -86,19 +96,64 @@ export default async function DashboardPage() {
           openRate: Number(n.unique_open_rate),
           clickRate: Number(n.unique_click_rate),
         }));
+        const donutData = newsletters.map((n) => ({ name: n.title, value: Number(n.revenue) }));
+        const bestNewsletter = newsletters.length
+          ? newsletters.reduce((best, n) => (Number(n.revenue) > Number(best.revenue) ? n : best))
+          : null;
+
+        // rapoartele sunt sortate descrescător (cel curent + cele anterioare);
+        // cel de la index+1 e luna imediat anterioară, pentru comparație
+        const previous = reports[idx + 1];
+        const prevCampaignRevenue = previous
+          ? (previous.newsletters ?? []).reduce((sum, n) => sum + Number(n.revenue), 0)
+          : null;
 
         return (
           <section key={report.id} className="uppr-card">
             <div className="uppr-card-inner space-y-6">
-              <h2
-                style={{
-                  fontFamily: "var(--font-heading), sans-serif",
-                  fontWeight: 600,
-                  fontSize: "22px",
-                }}
-              >
-                {LUNI[report.month - 1]} {report.year}
-              </h2>
+              <div className="flex items-center justify-between flex-wrap gap-3">
+                <h2
+                  style={{
+                    fontFamily: "var(--font-heading), sans-serif",
+                    fontWeight: 600,
+                    fontSize: "22px",
+                  }}
+                >
+                  {LUNI[report.month - 1]} {report.year}
+                </h2>
+                <Link
+                  href={`/report/${report.id}`}
+                  target="_blank"
+                  className="uppr-btn-secondary"
+                  style={{ padding: "8px 16px", fontSize: 13, minHeight: "auto" }}
+                >
+                  Descarcă PDF
+                </Link>
+              </div>
+
+              {bestNewsletter && newsletters.length > 1 && (
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 12,
+                    padding: "12px 16px",
+                    borderRadius: 12,
+                    background: "linear-gradient(135deg,rgba(251,191,36,.1),rgba(168,85,247,.08))",
+                    border: "1px solid rgba(251,191,36,.25)",
+                  }}
+                >
+                  <span style={{ fontSize: 20 }}>🏆</span>
+                  <div>
+                    <div style={{ fontSize: 12, fontWeight: 700, color: "#FBBF24", ...mono, textTransform: "uppercase", letterSpacing: ".04em" }}>
+                      Cel mai performant newsletter
+                    </div>
+                    <div style={{ fontSize: 14, fontWeight: 600, marginTop: 2 }}>
+                      {bestNewsletter.title} — {Number(bestNewsletter.revenue).toLocaleString("ro-RO")} Lei
+                    </div>
+                  </div>
+                </div>
+              )}
 
               <div>
                 <span className="uppr-label block mb-3" style={{ color: "var(--uppr-violet-3)" }}>
@@ -147,7 +202,20 @@ export default async function DashboardPage() {
                     </div>
 
                     {newsletters.length > 1 && (
-                      <NewsletterEngagementChart data={engagementData} />
+                      <div className="grid sm:grid-cols-2 gap-6">
+                        <div>
+                          <span className="uppr-label block mb-2" style={{ fontSize: 10.5, color: "var(--uppr-muted)" }}>
+                            Engagement per newsletter
+                          </span>
+                          <NewsletterEngagementChart data={engagementData} />
+                        </div>
+                        <div>
+                          <span className="uppr-label block mb-2" style={{ fontSize: 10.5, color: "var(--uppr-muted)" }}>
+                            Distribuție revenue
+                          </span>
+                          <RevenueDonutChart data={donutData} />
+                        </div>
+                      </div>
                     )}
                   </>
                 ) : (
@@ -160,13 +228,19 @@ export default async function DashboardPage() {
               <div>
                 <span className="uppr-label block mb-3" style={{ color: "var(--uppr-violet-3)" }}>
                   Ecommerce statistics (total pe lună)
+                  {previous && (
+                    <span style={{ fontWeight: 400, color: "var(--uppr-muted)", textTransform: "none", letterSpacing: 0, marginLeft: 8 }}>
+                      · vs. {LUNI[previous.month - 1]}
+                    </span>
+                  )}
                 </span>
                 <dl>
-                  <StatRow label="Sent emails" value={report.ecom_sent_emails} />
-                  <StatRow label="Clicks" value={report.ecom_clicks} />
-                  <StatRow label="Conversion rate" value={`${report.ecom_conversion_rate}%`} />
-                  <StatRow label="Transactions" value={report.ecom_transactions} />
-                  <StatRow label="Revenue" value={`${report.ecom_revenue} Lei`} />
+                  <StatRow label="Sent emails" value={report.ecom_sent_emails} current={report.ecom_sent_emails} previous={previous?.ecom_sent_emails} />
+                  <StatRow label="Clicks" value={report.ecom_clicks} current={report.ecom_clicks} previous={previous?.ecom_clicks} />
+                  <StatRow label="Conversion rate" value={`${report.ecom_conversion_rate}%`} current={report.ecom_conversion_rate} previous={previous?.ecom_conversion_rate} />
+                  <StatRow label="Transactions" value={report.ecom_transactions} current={report.ecom_transactions} previous={previous?.ecom_transactions} />
+                  <StatRow label="Revenue" value={`${report.ecom_revenue} Lei`} current={Number(report.ecom_revenue)} previous={previous ? Number(previous.ecom_revenue) : null} />
+                  <StatRow label="Revenue campanii" value={`${campaignRevenue.toLocaleString("ro-RO")} Lei`} current={campaignRevenue} previous={prevCampaignRevenue} />
                 </dl>
               </div>
 
