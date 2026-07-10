@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { getCurrentProfile } from "@/lib/auth";
+import SiteBackground from "@/components/site/SiteBackground";
 
 export default async function AdminLayout({
   children,
@@ -9,7 +10,8 @@ export default async function AdminLayout({
   const profile = await getCurrentProfile();
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col relative">
+      <SiteBackground />
       <header
         className="flex items-center justify-between px-6 py-4 sticky top-0 z-10"
         style={{
@@ -47,7 +49,7 @@ export default async function AdminLayout({
           </form>
         </div>
       </header>
-      <main className="flex-1 p-6 md:p-8 max-w-6xl w-full mx-auto">{children}</main>
+      <main className="relative z-[1] flex-1 p-6 md:p-8 max-w-6xl w-full mx-auto">{children}</main>
     </div>
   );
 }

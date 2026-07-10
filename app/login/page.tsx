@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import SiteBackground from "@/components/site/SiteBackground";
 import LoginForm from "./login-form";
 
 export default async function LoginPage() {
@@ -18,8 +19,11 @@ export default async function LoginPage() {
   }
 
   return (
-    <main className="flex min-h-screen items-center justify-center px-6">
-      <LoginForm />
+    <main className="flex min-h-screen items-center justify-center px-6 relative">
+      <SiteBackground />
+      <div className="relative z-[1]">
+        <LoginForm />
+      </div>
     </main>
   );
 }

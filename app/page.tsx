@@ -1,9 +1,12 @@
-import { redirect } from "next/navigation";
-import { getCurrentProfile } from "@/lib/auth";
+import type { Metadata } from "next";
+import HomeContent from "@/components/site/HomeContent";
 
-export default async function Home() {
-  const profile = await getCurrentProfile();
+export const metadata: Metadata = {
+  title: "UPPR Agency — Email & SMS Retention Marketing for SMBs",
+  description:
+    "Full-service email & SMS retention, engineered and managed on TheMarketer — built for small and mid-sized businesses that need lost leads and dormant customers to stop bleeding revenue on autopilot.",
+};
 
-  if (!profile) redirect("/login");
-  redirect(profile.role === "admin" ? "/admin" : "/dashboard");
+export default function Home() {
+  return <HomeContent />;
 }

@@ -21,7 +21,7 @@ const instrumentSans = Instrument_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "UPPR Agency — Panouri",
+  title: "UPPR Agency — Email & SMS Retention Marketing for SMBs",
   description: "Panouri administrare UPPR Agency",
 };
 
@@ -35,15 +35,7 @@ export default function RootLayout({
       lang="ro"
       className={`${spaceGrotesk.variable} ${spaceMono.variable} ${instrumentSans.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">
-        <div className="uppr-bg-layer">
-          <div className="uppr-bg-glow" />
-          <div className="uppr-bg-blob-1" />
-          <div className="uppr-bg-blob-2" />
-          <div className="uppr-bg-grid" />
-        </div>
-        <div className="relative z-[1] flex-1 flex flex-col">{children}</div>
-      </body>
+      <body className="min-h-full flex flex-col">{children}</body>
     </html>
   );
 }
