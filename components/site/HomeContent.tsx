@@ -742,14 +742,23 @@ function ResultsSection({ goCal }: { goCal: () => void }) {
           {resultShots.map((shot, i) => (
             <Reveal key={shot.src} delay={i * 0.05} className="uppr-card">
               <div className="uppr-card-inner">
-                <div style={{ position: "relative", width: "100%", aspectRatio: "16/10", borderRadius: 12, overflow: "hidden", marginBottom: 12, border: "1px solid rgba(255,255,255,.08)" }}>
-                  <Image src={shot.src} alt={shot.alt} fill style={{ objectFit: "cover" }} />
+                <div style={{ position: "relative", width: "100%", borderRadius: 12, overflow: "hidden", marginBottom: 12, border: "1px solid rgba(255,255,255,.08)", background: "#0A0718" }}>
+                  <Image src={shot.src} alt={shot.alt} width={800} height={500} style={{ width: "100%", height: "auto", display: "block", objectFit: "contain" }} />
                 </div>
-                <p style={{ margin: "0 0 8px", fontSize: 13, color: "#A29DB8" }}>{shot.caption}</p>
-                <div style={{ display: "flex", gap: 14, fontSize: 12.5, ...mono, color: "#D6C6FA" }}>
-                  <span>{shot.stat}</span>
-                  <span>{shot.orders} orders</span>
-                  <span>{shot.revenue}</span>
+                <p style={{ margin: "0 0 14px", fontSize: 13, color: "#A29DB8" }}>{shot.caption}</p>
+                <div style={{ display: "flex", gap: 22 }}>
+                  <div>
+                    <div style={{ fontWeight: 700, fontSize: 15, color: "#4ADE80", ...mono }}>{shot.stat}</div>
+                    <div style={{ fontSize: 10, color: "#6E6980", ...mono, textTransform: "uppercase", letterSpacing: ".04em", marginTop: 2 }}>CVR</div>
+                  </div>
+                  <div>
+                    <div style={{ fontWeight: 700, fontSize: 15, color: "#C084FC", ...mono }}>{shot.orders}</div>
+                    <div style={{ fontSize: 10, color: "#6E6980", ...mono, textTransform: "uppercase", letterSpacing: ".04em", marginTop: 2 }}>Orders</div>
+                  </div>
+                  <div>
+                    <div style={{ fontWeight: 700, fontSize: 15, color: "#FDBA74", ...mono }}>{shot.revenue}</div>
+                    <div style={{ fontSize: 10, color: "#6E6980", ...mono, textTransform: "uppercase", letterSpacing: ".04em", marginTop: 2 }}>Revenue</div>
+                  </div>
                 </div>
               </div>
             </Reveal>
