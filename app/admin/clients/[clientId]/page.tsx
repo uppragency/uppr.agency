@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import DuplicateReportButton from "@/components/admin/DuplicateReportButton";
+import OnboardingChecklist from "@/components/admin/OnboardingChecklist";
 
 const LUNI = [
   "Ianuarie", "Februarie", "Martie", "Aprilie", "Mai", "Iunie",
@@ -18,7 +19,7 @@ export default async function ClientReportsPage({
 
   const { data: client } = await supabase
     .from("clients")
-    .select("id, name, domain")
+    .select("id, name, domain, onboarding_account_created, onboarding_first_report, onboarding_welcome_sent")
     .eq("id", clientId)
     .single();
 
@@ -63,6 +64,15 @@ export default async function ClientReportsPage({
           + Raport lunar
         </Link>
       </div>
+
+      <OnboardingChecklist
+        clientId={clientId}
+        initial={{
+          onboarding_account_created: client.onboarding_account_created,
+          onboarding_first_report: client.onboarding_first_report,
+          onboarding_welcome_sent: client.onboarding_welcome_sent,
+        }}
+      />
 
       <div className="uppr-card">
         <div className="uppr-card-inner" style={{ padding: 0 }}>

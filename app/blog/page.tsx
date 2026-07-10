@@ -4,6 +4,7 @@ import Header from "@/components/site/Header";
 import Footer from "@/components/site/Footer";
 import SiteBackground from "@/components/site/SiteBackground";
 import { createClient } from "@/lib/supabase/server";
+import { estimateReadingTime } from "@/lib/reading-time";
 
 export const metadata: Metadata = {
   title: "Blog | Email & SMS Retention Marketing Insights | UPPR Agency",
@@ -17,7 +18,7 @@ export default async function BlogIndexPage() {
   const supabase = await createClient();
   const { data: articles } = await supabase
     .from("articles")
-    .select("title, slug, meta_description, published_at")
+    .select("title, slug, meta_description, published_at, content")
     .eq("status", "published")
     .order("published_at", { ascending: false });
 
@@ -54,6 +55,9 @@ export default async function BlogIndexPage() {
                       {article.meta_description}
                     </p>
                   )}
+                  <span style={{ fontSize: 12, color: "#6E6980", fontFamily: "var(--font-mono-label), monospace" }}>
+                    {estimateReadingTime(article.content)} min citire
+                  </span>
                   <span style={{ marginTop: "auto", fontWeight: 600, fontSize: 13, color: "#F5F3FF" }}>Read the guide →</span>
                 </article>
               </Link>

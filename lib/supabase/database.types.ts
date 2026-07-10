@@ -16,12 +16,18 @@ export interface Database {
           id: string;
           name: string;
           domain: string;
+          onboarding_account_created: boolean;
+          onboarding_first_report: boolean;
+          onboarding_welcome_sent: boolean;
           created_at: string;
         };
         Insert: {
           id?: string;
           name: string;
           domain: string;
+          onboarding_account_created?: boolean;
+          onboarding_first_report?: boolean;
+          onboarding_welcome_sent?: boolean;
           created_at?: string;
         };
         Update: Partial<Database["public"]["Tables"]["clients"]["Insert"]>;
@@ -164,6 +170,50 @@ export interface Database {
             referencedColumns: ["id"];
           }
         ];
+      };
+      audit_log: {
+        Row: {
+          id: string;
+          report_id: string | null;
+          admin_email: string;
+          action: string;
+          details: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          report_id?: string | null;
+          admin_email: string;
+          action: string;
+          details?: string | null;
+          created_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["audit_log"]["Insert"]>;
+        Relationships: [
+          {
+            foreignKeyName: "audit_log_report_id_fkey";
+            columns: ["report_id"];
+            isOneToOne: false;
+            referencedRelation: "campaign_reports";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
+      login_attempts: {
+        Row: {
+          id: string;
+          email: string;
+          success: boolean;
+          attempted_at: string;
+        };
+        Insert: {
+          id?: string;
+          email: string;
+          success: boolean;
+          attempted_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["login_attempts"]["Insert"]>;
+        Relationships: [];
       };
     };
     Views: Record<string, never>;

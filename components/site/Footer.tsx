@@ -53,6 +53,7 @@ export default function Footer() {
                 <Link href="/blog/" style={{ color: "inherit" }}>Blog</Link>
                 <Link href="/subject-line-grader/" style={{ color: "inherit" }}>Subject Line Grader</Link>
                 <Link href="/referral-program/" style={{ color: "inherit" }}>Referral Program</Link>
+                <Link href="/status" style={{ color: "inherit" }}>Status</Link>
               </div>
             </div>
             <div>

@@ -4,6 +4,8 @@ import RevenueTrendSection from "@/components/dashboard/RevenueTrendSection";
 import NewsletterEngagementChart from "@/components/dashboard/NewsletterEngagementChart";
 import RevenueDonutChart from "@/components/dashboard/RevenueDonutChart";
 import DeltaBadge from "@/components/dashboard/DeltaBadge";
+import NewReportBadge from "@/components/dashboard/NewReportBadge";
+import SearchBox from "@/components/dashboard/SearchBox";
 
 const LUNI = [
   "Ianuarie", "Februarie", "Martie", "Aprilie", "Mai", "Iunie",
@@ -36,7 +38,14 @@ function StatRow({
   );
 }
 
-export default async function DashboardPage() {
+export default async function DashboardPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ q?: string }>;
+}) {
+  const { q } = await searchParams;
+  const searchTerm = (q ?? "").trim().toLowerCase();
+
   const supabase = await createClient();
 
   // RLS ("Clients view own published reports") filtrează automat după
@@ -59,23 +68,42 @@ export default async function DashboardPage() {
     ecommerce: Number(r.ecom_revenue),
   }));
 
+  const latestUpdatedAt = reports?.length
+    ? reports.reduce((latest, r) => (r.updated_at > latest ? r.updated_at : latest), reports[0].updated_at)
+    : null;
+
+  // filtrare după search: ascund newsletter-ele care nu se potrivesc, și
+  // lunile care rămân fără niciun newsletter potrivit (doar când se caută ceva)
+  const visibleReports = (reports ?? [])
+    .map((r) => {
+      if (!searchTerm) return r;
+      const filteredNewsletters = (r.newsletters ?? []).filter((n) =>
+        n.title.toLowerCase().includes(searchTerm)
+      );
+      return { ...r, newsletters: filteredNewsletters };
+    })
+    .filter((r) => !searchTerm || (r.newsletters ?? []).length > 0);
+
   return (
     <div className="space-y-8">
-      <div>
-        <span className="uppr-label" style={{ color: "#A855F7" }}>
-          [ CAMPANIILE TALE ]
-        </span>
-        <h1
-          className="mt-2"
-          style={{
-            fontFamily: "var(--font-heading), sans-serif",
-            fontWeight: 700,
-            fontSize: "clamp(24px, 3.5vw, 34px)",
-            letterSpacing: "-.02em",
-          }}
-        >
-          Rapoarte <span className="grad-text">lunare</span>
-        </h1>
+      <div className="flex items-start justify-between flex-wrap gap-4">
+        <div>
+          <span className="uppr-label" style={{ color: "#A855F7" }}>
+            [ CAMPANIILE TALE ]
+          </span>
+          <h1
+            className="mt-2"
+            style={{
+              fontFamily: "var(--font-heading), sans-serif",
+              fontWeight: 700,
+              fontSize: "clamp(24px, 3.5vw, 34px)",
+              letterSpacing: "-.02em",
+            }}
+          >
+            Rapoarte <span className="grad-text">lunare</span>
+          </h1>
+        </div>
+        <NewReportBadge latestUpdatedAt={latestUpdatedAt} />
       </div>
 
       {!reports?.length && (
@@ -86,9 +114,20 @@ export default async function DashboardPage() {
         </div>
       )}
 
-      {trendData.length > 1 && <RevenueTrendSection data={trendData} />}
+      {!!reports?.length && (
+        <div className="flex items-center gap-3 flex-wrap">
+          <SearchBox />
+          {searchTerm && (
+            <span className="text-sm" style={{ color: "var(--uppr-muted)" }}>
+              {visibleReports.length} {visibleReports.length === 1 ? "lună găsită" : "luni găsite"} pentru &quot;{searchTerm}&quot;
+            </span>
+          )}
+        </div>
+      )}
 
-      {reports?.map((report, idx) => {
+      {!searchTerm && trendData.length > 1 && <RevenueTrendSection data={trendData} />}
+
+      {visibleReports.map((report) => {
         const newsletters = report.newsletters ?? [];
         const campaignRevenue = newsletters.reduce((sum, n) => sum + Number(n.revenue), 0);
         const engagementData = newsletters.map((n) => ({
@@ -101,11 +140,21 @@ export default async function DashboardPage() {
           ? newsletters.reduce((best, n) => (Number(n.revenue) > Number(best.revenue) ? n : best))
           : null;
 
-        // rapoartele sunt sortate descrescător (cel curent + cele anterioare);
-        // cel de la index+1 e luna imediat anterioară, pentru comparație
-        const previous = reports[idx + 1];
+        // luna imediat anterioară (MoM) — rapoartele complete (nefiltrate) sunt
+        // sortate descrescător, deci indexul +1 e luna precedentă
+        const fullIndex = (reports ?? []).findIndex((r) => r.id === report.id);
+        const previous = (reports ?? [])[fullIndex + 1];
         const prevCampaignRevenue = previous
           ? (previous.newsletters ?? []).reduce((sum, n) => sum + Number(n.revenue), 0)
+          : null;
+
+        // aceeași lună, anul trecut (YoY)
+        const sameMonthLastYear = (reports ?? []).find(
+          (r) => r.month === report.month && r.year === report.year - 1
+        );
+        const yoyEcomRevenue = sameMonthLastYear ? Number(sameMonthLastYear.ecom_revenue) : null;
+        const yoyCampaignRevenue = sameMonthLastYear
+          ? (sameMonthLastYear.newsletters ?? []).reduce((sum, n) => sum + Number(n.revenue), 0)
           : null;
 
         return (
@@ -226,14 +275,24 @@ export default async function DashboardPage() {
               </div>
 
               <div>
-                <span className="uppr-label block mb-3" style={{ color: "var(--uppr-violet-3)" }}>
-                  Ecommerce statistics (total pe lună)
+                <div className="flex items-center gap-2 flex-wrap mb-3">
+                  <span className="uppr-label" style={{ color: "var(--uppr-violet-3)" }}>
+                    Ecommerce statistics (total pe lună)
+                  </span>
                   {previous && (
-                    <span style={{ fontWeight: 400, color: "var(--uppr-muted)", textTransform: "none", letterSpacing: 0, marginLeft: 8 }}>
+                    <span className="text-xs" style={{ color: "var(--uppr-muted)" }}>
                       · vs. {LUNI[previous.month - 1]}
                     </span>
                   )}
-                </span>
+                  {sameMonthLastYear && (
+                    <span
+                      className="text-xs"
+                      style={{ color: "var(--uppr-muted)", ...mono, padding: "2px 8px", borderRadius: 999, background: "rgba(255,255,255,.04)" }}
+                    >
+                      vs. {LUNI[report.month - 1]} {report.year - 1}: {(yoyCampaignRevenue! + yoyEcomRevenue!).toLocaleString("ro-RO")} Lei
+                    </span>
+                  )}
+                </div>
                 <dl>
                   <StatRow label="Sent emails" value={report.ecom_sent_emails} current={report.ecom_sent_emails} previous={previous?.ecom_sent_emails} />
                   <StatRow label="Clicks" value={report.ecom_clicks} current={report.ecom_clicks} previous={previous?.ecom_clicks} />

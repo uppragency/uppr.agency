@@ -47,6 +47,15 @@ const emptyForm = {
   internal_note: "",
 };
 
+const RECOMMENDATION_TEMPLATES = [
+  "Optimizează subject line-urile pe baza scorurilor din Subject Line Grader",
+  "Testează A/B ora de trimitere pentru următoarele 2 campanii",
+  "Segmentează lista după engagement recency înainte de următorul send",
+  "Adaugă un flow de win-back pentru contactele inactive 60+ zile",
+  "Curăță lista de contacte neangajate pentru a proteja deliverability",
+  "Crește frecvența campaniilor cu 1 send/lună, dat fiind engagement-ul bun",
+];
+
 export default function ReportForm({
   clientId,
   report,
@@ -125,6 +134,50 @@ export default function ReportForm({
     setNewsletterDrafts((drafts) => drafts.filter((_, i) => i !== index));
   }
 
+  function handleCsvImport(file: File) {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const text = String(reader.result ?? "");
+      const rows = text
+        .split(/\r?\n/)
+        .map((r) => r.trim())
+        .filter(Boolean);
+
+      const imported: NewsletterDraft[] = [];
+      for (const row of rows) {
+        const cols = row.split(",").map((c) => c.trim());
+        if (cols[0].toLowerCase() === "title") continue; // skip header
+        if (cols.length < 6) continue;
+        const [title, sent, open, click, trans, revenue] = cols;
+        imported.push({
+          title,
+          sent_emails: Number(sent) || 0,
+          unique_open_rate: Number(open) || 0,
+          unique_click_rate: Number(click) || 0,
+          transactions: Number(trans) || 0,
+          revenue: Number(revenue) || 0,
+        });
+      }
+
+      if (imported.length) {
+        setNewsletterDrafts((drafts) => {
+          const existingHadOnlyEmpty = drafts.length === 1 && drafts[0].title.trim() === "";
+          return existingHadOnlyEmpty ? imported : [...drafts, ...imported];
+        });
+      }
+    };
+    reader.readAsText(file);
+  }
+
+  function insertTemplate(template: string) {
+    setForm((f) => {
+      const slots: (keyof typeof f)[] = ["recommendation_1", "recommendation_2", "recommendation_3", "recommendation_4"];
+      const emptySlot = slots.find((s) => !f[s]);
+      if (!emptySlot) return f;
+      return { ...f, [emptySlot]: template };
+    });
+  }
+
   async function handleSave(status: "draft" | "published") {
     setSaving(true);
     setError(null);
@@ -177,6 +230,16 @@ export default function ReportForm({
       });
     }
 
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    await supabase.from("audit_log").insert({
+      report_id: savedReport.id,
+      admin_email: user?.email ?? "necunoscut",
+      action: report ? `Raport actualizat (${status})` : `Raport creat (${status})`,
+      details: `${validNewsletters.length} newsletter-e`,
+    });
+
     setSaving(false);
     router.push(`/admin/clients/${clientId}`);
     router.refresh();
@@ -225,10 +288,28 @@ export default function ReportForm({
             <span className="uppr-label" style={{ color: "var(--uppr-violet-3)" }}>
               Campanii lunare — newsletter-e
             </span>
-            <button type="button" onClick={addNewsletter} className="uppr-btn-secondary" style={{ padding: "7px 14px", fontSize: 12.5, minHeight: "auto" }}>
-              + Newsletter
-            </button>
+            <div style={{ display: "flex", gap: 8 }}>
+              <label className="uppr-btn-secondary" style={{ padding: "7px 14px", fontSize: 12.5, minHeight: "auto", cursor: "pointer" }}>
+                Import CSV
+                <input
+                  type="file"
+                  accept=".csv,text/csv"
+                  style={{ display: "none" }}
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) handleCsvImport(file);
+                    e.target.value = "";
+                  }}
+                />
+              </label>
+              <button type="button" onClick={addNewsletter} className="uppr-btn-secondary" style={{ padding: "7px 14px", fontSize: 12.5, minHeight: "auto" }}>
+                + Newsletter
+              </button>
+            </div>
           </div>
+          <p style={{ fontSize: 11.5, color: "var(--uppr-muted)", margin: "-8px 0 0" }}>
+            Format CSV: titlu,sent,open_rate,click_rate,transactions,revenue (fără spații după virgulă)
+          </p>
 
           {newsletterDrafts.map((n, i) => (
             <div key={n.id ?? `new-${i}`} className="space-y-3" style={{ padding: 16, borderRadius: 12, border: "1px solid rgba(255,255,255,.08)", background: "rgba(255,255,255,.02)" }}>
@@ -297,6 +378,26 @@ export default function ReportForm({
           <span className="uppr-label" style={{ color: "var(--uppr-violet-3)" }}>
             Recomandări
           </span>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 4 }}>
+            {RECOMMENDATION_TEMPLATES.map((t) => (
+              <button
+                key={t}
+                type="button"
+                onClick={() => insertTemplate(t)}
+                style={{
+                  fontSize: 11,
+                  padding: "5px 10px",
+                  borderRadius: 999,
+                  background: "rgba(168,85,247,.08)",
+                  border: "1px solid rgba(168,85,247,.2)",
+                  color: "var(--uppr-violet-3)",
+                  cursor: "pointer",
+                }}
+              >
+                + {t.length > 40 ? t.slice(0, 40) + "…" : t}
+              </button>
+            ))}
+          </div>
           {(["recommendation_1", "recommendation_2", "recommendation_3", "recommendation_4"] as const).map(
             (key, i) => (
               <textarea

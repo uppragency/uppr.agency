@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
+import CopyMissingButton from "@/components/admin/CopyMissingButton";
 
 const LUNI = [
   "Ianuarie", "Februarie", "Martie", "Aprilie", "Mai", "Iunie",
@@ -30,6 +31,9 @@ export default async function AdminHome() {
   }, 0);
 
   const missingCount = (clients?.length ?? 0) - (currentReports?.length ?? 0);
+  const missingNames = (clients ?? [])
+    .filter((c) => !reportByClient.has(c.id))
+    .map((c) => c.name);
   const draftCount = (currentReports ?? []).filter((r) => r.status === "draft").length;
   const publishedArticles = (articles ?? []).filter((a) => a.status === "published").length;
 
@@ -67,6 +71,11 @@ export default async function AdminHome() {
             <div style={{ fontFamily: "var(--font-heading), sans-serif", fontWeight: 700, fontSize: 26, marginTop: 8, color: missingCount > 0 ? "#FF6B9D" : "#4ADE80" }}>
               {missingCount}
             </div>
+            {missingCount > 0 && (
+              <div style={{ marginTop: 10 }}>
+                <CopyMissingButton names={missingNames} />
+              </div>
+            )}
           </div>
         </div>
         <div className="uppr-card">
