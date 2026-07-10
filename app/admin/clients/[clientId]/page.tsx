@@ -25,10 +25,16 @@ export default async function ClientReportsPage({
 
   const { data: reports } = await supabase
     .from("campaign_reports")
-    .select("id, month, year, revenue, ecom_revenue")
+    .select("id, month, year, ecom_revenue, newsletters(revenue)")
     .eq("client_id", clientId)
     .order("year", { ascending: false })
     .order("month", { ascending: false });
+
+  const reportsWithTotals = reports?.map((r) => ({
+    ...r,
+    campaignRevenue: (r.newsletters ?? []).reduce((sum, n) => sum + Number(n.revenue), 0),
+    newsletterCount: (r.newsletters ?? []).length,
+  }));
 
   return (
     <div className="space-y-6">
@@ -63,18 +69,20 @@ export default async function ClientReportsPage({
             <thead>
               <tr>
                 <th>Lună</th>
+                <th>Newsletter-e</th>
                 <th>Revenue campanii</th>
                 <th>Revenue ecommerce</th>
                 <th />
               </tr>
             </thead>
             <tbody>
-              {reports?.map((report) => (
+              {reportsWithTotals?.map((report) => (
                 <tr key={report.id}>
                   <td style={{ fontWeight: 600 }}>
                     {LUNI[report.month - 1]} {report.year}
                   </td>
-                  <td>{report.revenue} Lei</td>
+                  <td>{report.newsletterCount}</td>
+                  <td>{report.campaignRevenue.toLocaleString("ro-RO")} Lei</td>
                   <td>{report.ecom_revenue} Lei</td>
                   <td>
                     <Link
@@ -87,9 +95,9 @@ export default async function ClientReportsPage({
                   </td>
                 </tr>
               ))}
-              {!reports?.length && (
+              {!reportsWithTotals?.length && (
                 <tr>
-                  <td colSpan={4} className="text-center py-10" style={{ color: "var(--uppr-muted)" }}>
+                  <td colSpan={5} className="text-center py-10" style={{ color: "var(--uppr-muted)" }}>
                     Niciun raport încă.
                   </td>
                 </tr>

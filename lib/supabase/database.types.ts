@@ -86,11 +86,6 @@ export interface Database {
           client_id: string;
           month: number;
           year: number;
-          sent_emails: number;
-          unique_open_rate: number;
-          unique_click_rate: number;
-          transactions: number;
-          revenue: number;
           ecom_sent_emails: number;
           ecom_clicks: number;
           ecom_conversion_rate: number;
@@ -108,11 +103,6 @@ export interface Database {
           client_id: string;
           month: number;
           year: number;
-          sent_emails: number;
-          unique_open_rate: number;
-          unique_click_rate: number;
-          transactions: number;
-          revenue: number;
           ecom_sent_emails: number;
           ecom_clicks: number;
           ecom_conversion_rate: number;
@@ -132,6 +122,40 @@ export interface Database {
             columns: ["client_id"];
             isOneToOne: false;
             referencedRelation: "clients";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
+      newsletters: {
+        Row: {
+          id: string;
+          report_id: string;
+          title: string;
+          sent_emails: number;
+          unique_open_rate: number;
+          unique_click_rate: number;
+          transactions: number;
+          revenue: number;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          report_id: string;
+          title: string;
+          sent_emails: number;
+          unique_open_rate: number;
+          unique_click_rate: number;
+          transactions: number;
+          revenue: number;
+          created_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["newsletters"]["Insert"]>;
+        Relationships: [
+          {
+            foreignKeyName: "newsletters_report_id_fkey";
+            columns: ["report_id"];
+            isOneToOne: false;
+            referencedRelation: "campaign_reports";
             referencedColumns: ["id"];
           }
         ];

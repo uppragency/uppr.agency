@@ -17,6 +17,12 @@ export default async function EditReportPage({
 
   if (!report) notFound();
 
+  const { data: newsletters } = await supabase
+    .from("newsletters")
+    .select("*")
+    .eq("report_id", reportId)
+    .order("created_at", { ascending: true });
+
   return (
     <div className="space-y-6">
       <div>
@@ -35,7 +41,7 @@ export default async function EditReportPage({
           Editează raport lunar
         </h1>
       </div>
-      <ReportForm clientId={clientId} report={report} />
+      <ReportForm clientId={clientId} report={report} newsletters={newsletters ?? []} />
     </div>
   );
 }
