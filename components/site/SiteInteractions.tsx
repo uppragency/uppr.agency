@@ -81,7 +81,27 @@ export default function SiteInteractions() {
         nav.style.boxShadow = s ? "0 10px 40px rgba(0,0,0,.5)" : "0 8px 40px rgba(0,0,0,.35)";
         nav.style.background = s ? "rgba(10,6,20,.75)" : "rgba(14,9,26,.55)";
       }
+      updateManifesto();
     }
+
+    // Reveal progresiv al cuvintelor din secțiunea Manifesto, pe măsură ce
+    // secțiunea traversează viewport-ul (identic cu updateManifesto original)
+    function updateManifesto() {
+      const root = document.getElementById("lm-manifesto");
+      if (!root) return;
+      const words = Array.from(root.querySelectorAll<HTMLElement>("[data-mword]"));
+      if (!words.length) return;
+      const rect = root.getBoundingClientRect();
+      const vh = window.innerHeight;
+      const start = vh * 0.9;
+      const end = vh * 0.35;
+      const progress = Math.min(1, Math.max(0, (start - rect.top) / (rect.height + (start - end))));
+      const activeCount = Math.round(progress * words.length);
+      words.forEach((w, i) => {
+        w.style.color = i < activeCount ? "#F5F3FF" : "#3A3450";
+      });
+    }
+    updateManifesto();
     window.addEventListener("scroll", onScroll, { passive: true });
 
     // Ascunde elemente marcate pe ecrane foarte înguste

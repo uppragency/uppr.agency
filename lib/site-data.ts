@@ -70,3 +70,85 @@ export const faqs = [
 
 export const CAL_URL = "https://www.cal.eu/upprmarketing/book-a-free-15-minute-consultation?overlayCalendar=true";
 export const AFFILIATE_URL = "https://api.themarketer.com/invite/upprmarketing";
+
+export const socialProofStats = [
+  { value: 247, suffix: "%", prefix: "+", caption: "Revenue from automated flows for LUMEN Goods", variant: "outline" as const },
+  { value: 18, suffix: "%", prefix: "+", caption: "Total revenue in 60 days · Verde", variant: "solid" as const },
+  { value: 42, suffix: "%", prefix: "", caption: "Average open rate across managed campaigns", variant: "outline" as const },
+];
+
+export const testimonial = {
+  quote:
+    "UPPR rebuilt our welcome and win-back flows on TheMarketer in three weeks. Email went from 9% of revenue to 27% without touching our ad spend. It just runs now.",
+  name: "Maya Okonkwo",
+  title: "Head of Growth · Verde",
+};
+
+export const comparisonPlans = [
+  {
+    tag: "DIY / in-house",
+    title: "You build it yourself",
+    highlight: false,
+    rows: [
+      ["Time to launch", "Weeks, part-time"],
+      ["Platform depth", "Self-taught"],
+      ["Who's accountable", "You, alone"],
+      ["Optimization", "When you find time"],
+      ["Built for", "Whoever has the hours"],
+      ["Data ownership", "Yours"],
+    ],
+  },
+  {
+    tag: "Generalist agency",
+    title: "One channel among five",
+    highlight: false,
+    rows: [
+      ["Time to launch", "4–8 weeks"],
+      ["Platform depth", "Spread across 5+ channels"],
+      ["Who's accountable", "Rotating account managers"],
+      ["Optimization", "Monthly, if scheduled"],
+      ["Built for", "Enterprise retainers"],
+      ["Data ownership", "Often tied to their systems"],
+    ],
+  },
+  {
+    tag: "UPPR",
+    title: "Retention as the only job",
+    highlight: true,
+    rows: [
+      ["Time to launch", "2–3 weeks"],
+      ["Platform depth", "TheMarketer-native, daily"],
+      ["Who's accountable", "One dedicated pod"],
+      ["Optimization", "Continuous"],
+      ["Built for", "Small & mid-sized businesses"],
+      ["Data ownership", "Always yours, no lock-in"],
+    ],
+  },
+];
+
+export const notAFit = [
+  "No list yet, or under 500 contacts to start from",
+  "A single one-off sale with no repeat or renewal cycle",
+  "Looking for a one-time campaign send, not a managed system",
+  "Need same-day setup with no onboarding period",
+  "Choosing purely on lowest price, not platform depth",
+];
+
+export const goodFit = [
+  "An existing customer or lead list, even a small one",
+  "A repeat-purchase, repeat-booking, or renewal cycle",
+  "A small or mid-sized business ready to own retention, not rent it",
+  "Wants one accountable team, not a rotating account manager",
+  "Ready to let flows run a full cycle before judging results",
+];
+
+export const leadFormBenefits = [
+  "Free 15-minute strategy session",
+  "Personalized recommendations for your business",
+  "No commitment or sales pressure",
+  "Expert answers to your marketing questions",
+  "Identify your biggest revenue opportunities",
+  "Discover quick wins to increase retention",
+  "Actionable advice you can implement right away",
+  "Tailored insights based on your current setup",
+];
