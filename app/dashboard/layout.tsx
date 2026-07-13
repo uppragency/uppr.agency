@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { getCurrentProfile } from "@/lib/auth";
 import SiteBackground from "@/components/site/SiteBackground";
 
@@ -19,16 +20,21 @@ export default async function DashboardLayout({
           borderBottom: "1px solid rgba(255,255,255,.08)",
         }}
       >
-        <span
-          style={{
-            fontFamily: "var(--font-heading), sans-serif",
-            fontWeight: 700,
-            fontSize: "16px",
-            letterSpacing: "-.01em",
-          }}
-        >
-          UPPR <span className="grad-text">Rapoarte</span>
-        </span>
+        <nav className="flex items-center gap-6">
+          <Link href="/" className="text-sm font-medium" style={{ color: "var(--uppr-muted)" }}>
+            ← Întoarce-te
+          </Link>
+          <span
+            style={{
+              fontFamily: "var(--font-heading), sans-serif",
+              fontWeight: 700,
+              fontSize: "16px",
+              letterSpacing: "-.01em",
+            }}
+          >
+            UPPR <span className="grad-text">Rapoarte</span>
+          </span>
+        </nav>
         <div className="flex items-center gap-4">
           <span className="text-sm" style={{ color: "var(--uppr-muted)" }}>
             {profile?.email}

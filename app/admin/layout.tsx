@@ -31,6 +31,9 @@ export default async function AdminLayout({
           >
             UPPR <span className="grad-text">Admin</span>
           </span>
+          <Link href="/" className="text-sm font-medium" style={{ color: "var(--uppr-muted)" }}>
+            ← Întoarce-te
+          </Link>
           <Link href="/admin/blog" className="text-sm font-medium" style={{ color: "var(--uppr-fg)" }}>
             Blog
           </Link>

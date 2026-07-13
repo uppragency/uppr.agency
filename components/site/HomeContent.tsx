@@ -5,6 +5,7 @@ import Header from "@/components/site/Header";
 import Footer from "@/components/site/Footer";
 import SiteInteractions from "@/components/site/SiteInteractions";
 import Reveal from "@/components/site/Reveal";
+import WelcomeFlowDemo from "@/components/site/WelcomeFlowDemo";
 import CalBooking from "@/components/site/CalBooking";
 import {
   marquee,
@@ -82,6 +83,7 @@ export default function HomeContent() {
         <Hero goCal={goCal} goResults={goResults} />
         <Marquee />
         <Manifesto />
+        <FlowDemoSection />
         <ProblemSolution />
         <TrafficCaptureExplainer goCal={goCal} />
         <ComparisonTable />
@@ -339,6 +341,25 @@ function Manifesto() {
           </span>
         ))}
       </p>
+    </section>
+  );
+}
+
+function FlowDemoSection() {
+  return (
+    <section style={{ maxWidth: 1100, margin: "0 auto", padding: "clamp(20px,4vw,40px) clamp(18px,5vw,28px) clamp(60px,9vw,100px)" }}>
+      <Reveal style={{ textAlign: "center", maxWidth: 680, marginLeft: "auto", marginRight: "auto", marginBottom: 44 }}>
+        <SectionLabel>SEE IT RUN</SectionLabel>
+        <h2 style={{ margin: "16px 0 16px", ...heading, fontWeight: 700, fontSize: "clamp(28px,4.6vw,46px)", lineHeight: 1.1, letterSpacing: "-.025em" }}>
+          Not a mockup. This is <span className="grad-text">exactly how a flow runs</span>.
+        </h2>
+        <p style={{ margin: 0, fontSize: "clamp(15px,2vw,17px)", lineHeight: 1.55, color: "#A29DB8" }}>
+          A live look at a welcome series — five emails, timed automatically from the moment someone joins your list.
+        </p>
+      </Reveal>
+      <Reveal delay={0.1}>
+        <WelcomeFlowDemo />
+      </Reveal>
     </section>
   );
 }
