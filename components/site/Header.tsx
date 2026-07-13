@@ -37,9 +37,6 @@ export default function Header() {
           <Link href="/blog/" className="text-sm font-semibold" style={{ color: "#F5F3FF" }}>
             Blog
           </Link>
-          <Link href="/demo" className="text-sm font-semibold" style={{ color: "#F5F3FF" }}>
-            Demo
-          </Link>
           <Link
             href="/login"
             className="text-sm font-semibold"

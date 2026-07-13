@@ -52,7 +52,6 @@ export default function Footer() {
                 <a href="/#lm-problem" style={{ color: "inherit" }}>Why retention</a>
                 <Link href="/blog/" style={{ color: "inherit" }}>Blog</Link>
                 <Link href="/subject-line-grader/" style={{ color: "inherit" }}>Subject Line Grader</Link>
-                <Link href="/demo" style={{ color: "inherit" }}>Demo</Link>
                 <Link href="/referral-program/" style={{ color: "inherit" }}>Referral Program</Link>
                 <Link href="/status" style={{ color: "inherit" }}>Status</Link>
               </div>
