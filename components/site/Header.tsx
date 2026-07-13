@@ -37,6 +37,9 @@ export default function Header() {
           <Link href="/blog/" className="text-sm font-semibold" style={{ color: "#F5F3FF" }}>
             Blog
           </Link>
+          <Link href="/demo" className="text-sm font-semibold" style={{ color: "#F5F3FF" }}>
+            Demo
+          </Link>
           <Link
             href="/login"
             className="text-sm font-semibold"
@@ -45,7 +48,7 @@ export default function Header() {
             Dashboard
           </Link>
           <a
-            href="https://www.cal.eu/upprmarketing/book-a-free-15-minute-consultation?overlayCalendar=true"
+            href="/#lm-form"
             style={{
               padding: "13px clamp(14px,3vw,20px)",
               minHeight: 44,

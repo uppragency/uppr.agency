@@ -68,7 +68,7 @@ export const faqs = [
   { q: "How do you handle data protection and GDPR?", a: "TheMarketer operates under EU data protection requirements, and every flow we build follows consent and data-minimization principles by design. Your customer data stays inside your own TheMarketer account — we never export or store it separately." },
 ];
 
-export const CAL_URL = "https://www.cal.eu/upprmarketing/book-a-free-15-minute-consultation?overlayCalendar=true";
+export const CAL_URL = "/#lm-form";
 export const AFFILIATE_URL = "https://api.themarketer.com/invite/upprmarketing";
 
 export const socialProofStats = [

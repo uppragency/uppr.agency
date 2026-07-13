@@ -85,7 +85,7 @@ export default function SubjectLineGraderPage() {
                   Book a free 15-minute consultation and we&apos;ll look at your actual flows, not a hypothetical one.
                 </div>
                 <a
-                  href="https://www.cal.eu/upprmarketing/book-a-free-15-minute-consultation?overlayCalendar=true"
+                  href="/#lm-form"
                   className="uppr-btn-primary"
                   style={{ display: "inline-block", textDecoration: "none" }}
                 >

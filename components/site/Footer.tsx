@@ -52,6 +52,7 @@ export default function Footer() {
                 <a href="/#lm-problem" style={{ color: "inherit" }}>Why retention</a>
                 <Link href="/blog/" style={{ color: "inherit" }}>Blog</Link>
                 <Link href="/subject-line-grader/" style={{ color: "inherit" }}>Subject Line Grader</Link>
+                <Link href="/demo" style={{ color: "inherit" }}>Demo</Link>
                 <Link href="/referral-program/" style={{ color: "inherit" }}>Referral Program</Link>
                 <Link href="/status" style={{ color: "inherit" }}>Status</Link>
               </div>
@@ -62,7 +63,7 @@ export default function Footer() {
               </div>
               <div style={{ display: "flex", flexDirection: "column", gap: 11, fontSize: 14, color: "#B8B2CC" }}>
                 <a
-                  href="https://www.cal.eu/upprmarketing/book-a-free-15-minute-consultation?overlayCalendar=true"
+                  href="/#lm-form"
                   style={{ color: "inherit" }}
                 >
                   Book a free 15-minute consultation
