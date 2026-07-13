@@ -3,6 +3,8 @@ import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import DuplicateReportButton from "@/components/admin/DuplicateReportButton";
 import OnboardingChecklist from "@/components/admin/OnboardingChecklist";
+import ClientFinancialSettings from "@/components/admin/ClientFinancialSettings";
+import { computeProfit, computeMargin } from "@/lib/profit";
 
 const LUNI = [
   "Ianuarie", "Februarie", "Martie", "Aprilie", "Mai", "Iunie",
@@ -19,7 +21,7 @@ export default async function ClientReportsPage({
 
   const { data: client } = await supabase
     .from("clients")
-    .select("id, name, domain, onboarding_account_created, onboarding_first_report, onboarding_welcome_sent")
+    .select("id, name, domain, onboarding_account_created, onboarding_first_report, onboarding_welcome_sent, setup_cost, target_margin_pct")
     .eq("id", clientId)
     .single();
 
@@ -27,16 +29,25 @@ export default async function ClientReportsPage({
 
   const { data: reports } = await supabase
     .from("campaign_reports")
-    .select("id, month, year, ecom_revenue, status, newsletters(revenue)")
+    .select("id, month, year, ecom_revenue, cost_themarketer, cost_invoice, status, newsletters(revenue)")
     .eq("client_id", clientId)
     .order("year", { ascending: false })
     .order("month", { ascending: false });
 
-  const reportsWithTotals = reports?.map((r) => ({
-    ...r,
-    campaignRevenue: (r.newsletters ?? []).reduce((sum, n) => sum + Number(n.revenue), 0),
-    newsletterCount: (r.newsletters ?? []).length,
-  }));
+  const reportsWithTotals = reports?.map((r) => {
+    const campaignRevenue = (r.newsletters ?? []).reduce((sum, n) => sum + Number(n.revenue), 0);
+    const totalRevenue = campaignRevenue + Number(r.ecom_revenue);
+    const profit = computeProfit(totalRevenue, Number(r.cost_themarketer), Number(r.cost_invoice));
+    const margin = computeMargin(profit, totalRevenue);
+    return {
+      ...r,
+      campaignRevenue,
+      newsletterCount: (r.newsletters ?? []).length,
+      totalRevenue,
+      profit,
+      margin,
+    };
+  });
 
   return (
     <div className="space-y-6">
@@ -74,6 +85,31 @@ export default async function ClientReportsPage({
         }}
       />
 
+      <ClientFinancialSettings
+        clientId={clientId}
+        initialSetupCost={client.setup_cost}
+        initialTargetMargin={client.target_margin_pct}
+      />
+
+      {reportsWithTotals?.some((r) => r.profit < 0) && (
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 12,
+            padding: "12px 16px",
+            borderRadius: 12,
+            background: "rgba(255,107,157,.08)",
+            border: "1px solid rgba(255,107,157,.25)",
+          }}
+        >
+          <span style={{ fontSize: 18 }}>⚠️</span>
+          <span style={{ fontSize: 13.5, color: "#FF6B9D" }}>
+            Cel puțin o lună are profit negativ pentru acest client — verifică costurile vs. revenue.
+          </span>
+        </div>
+      )}
+
       <div className="uppr-card">
         <div className="uppr-card-inner" style={{ padding: 0 }}>
           <table className="uppr-table">
@@ -84,6 +120,8 @@ export default async function ClientReportsPage({
                 <th>Newsletter-e</th>
                 <th>Revenue campanii</th>
                 <th>Revenue ecommerce</th>
+                <th>Profit</th>
+                <th>Marjă</th>
                 <th />
               </tr>
             </thead>
@@ -101,6 +139,12 @@ export default async function ClientReportsPage({
                   <td>{report.newsletterCount}</td>
                   <td>{report.campaignRevenue.toLocaleString("ro-RO")} Lei</td>
                   <td>{report.ecom_revenue} Lei</td>
+                  <td style={{ color: report.profit >= 0 ? "#4ADE80" : "#FF6B9D", fontWeight: 600 }}>
+                    {report.profit.toLocaleString("ro-RO")} Lei
+                  </td>
+                  <td style={{ color: report.profit >= 0 ? "#4ADE80" : "#FF6B9D", fontWeight: 600 }}>
+                    {report.margin !== null ? `${report.margin.toFixed(1)}%` : "—"}
+                  </td>
                   <td style={{ display: "flex", gap: 14, alignItems: "center" }}>
                     <Link
                       href={`/admin/clients/${clientId}/${report.id}`}
@@ -115,7 +159,7 @@ export default async function ClientReportsPage({
               ))}
               {!reportsWithTotals?.length && (
                 <tr>
-                  <td colSpan={6} className="text-center py-10" style={{ color: "var(--uppr-muted)" }}>
+                  <td colSpan={8} className="text-center py-10" style={{ color: "var(--uppr-muted)" }}>
                     Niciun raport încă.
                   </td>
                 </tr>

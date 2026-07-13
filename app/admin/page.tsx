@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import CopyMissingButton from "@/components/admin/CopyMissingButton";
+import { computeProfit } from "@/lib/profit";
 
 const LUNI = [
   "Ianuarie", "Februarie", "Martie", "Aprilie", "Mai", "Iunie",
@@ -17,7 +18,7 @@ export default async function AdminHome() {
 
   const { data: currentReports } = await supabase
     .from("campaign_reports")
-    .select("client_id, status, ecom_revenue, newsletters(revenue)")
+    .select("client_id, status, ecom_revenue, cost_themarketer, cost_invoice, newsletters(revenue)")
     .eq("month", currentMonth)
     .eq("year", currentYear);
 
@@ -29,6 +30,18 @@ export default async function AdminHome() {
     const campaignRevenue = (r.newsletters ?? []).reduce((s, n) => s + Number(n.revenue), 0);
     return sum + campaignRevenue + Number(r.ecom_revenue);
   }, 0);
+
+  const totalProfitThisMonth = (currentReports ?? []).reduce((sum, r) => {
+    const campaignRevenue = (r.newsletters ?? []).reduce((s, n) => s + Number(n.revenue), 0);
+    const totalRevenue = campaignRevenue + Number(r.ecom_revenue);
+    return sum + computeProfit(totalRevenue, Number(r.cost_themarketer), Number(r.cost_invoice));
+  }, 0);
+
+  const negativeProfitCount = (currentReports ?? []).filter((r) => {
+    const campaignRevenue = (r.newsletters ?? []).reduce((s, n) => s + Number(n.revenue), 0);
+    const totalRevenue = campaignRevenue + Number(r.ecom_revenue);
+    return computeProfit(totalRevenue, Number(r.cost_themarketer), Number(r.cost_invoice)) < 0;
+  }).length;
 
   const missingCount = (clients?.length ?? 0) - (currentReports?.length ?? 0);
   const missingNames = (clients ?? [])
@@ -56,13 +69,26 @@ export default async function AdminHome() {
         </h1>
       </div>
 
-      <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid sm:grid-cols-2 lg:grid-cols-5 gap-4">
         <div className="uppr-card">
           <div className="uppr-card-inner">
             <span className="uppr-label" style={{ color: "var(--uppr-muted)" }}>Revenue total luna asta</span>
             <div style={{ fontFamily: "var(--font-heading), sans-serif", fontWeight: 700, fontSize: 26, marginTop: 8 }}>
               {totalRevenueThisMonth.toLocaleString("ro-RO")} Lei
             </div>
+          </div>
+        </div>
+        <div className="uppr-card" style={{ borderColor: totalProfitThisMonth >= 0 ? "rgba(74,222,128,.25)" : "rgba(255,107,157,.25)" }}>
+          <div className="uppr-card-inner">
+            <span className="uppr-label" style={{ color: "var(--uppr-muted)" }}>Profit total portofoliu</span>
+            <div style={{ fontFamily: "var(--font-heading), sans-serif", fontWeight: 700, fontSize: 26, marginTop: 8, color: totalProfitThisMonth >= 0 ? "#4ADE80" : "#FF6B9D" }}>
+              {totalProfitThisMonth.toLocaleString("ro-RO")} Lei
+            </div>
+            {negativeProfitCount > 0 && (
+              <div style={{ marginTop: 8, fontSize: 11.5, color: "#FF6B9D" }}>
+                ⚠️ {negativeProfitCount} client{negativeProfitCount === 1 ? "" : "i"} cu profit negativ
+              </div>
+            )}
           </div>
         </div>
         <div className="uppr-card">

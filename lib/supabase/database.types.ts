@@ -19,6 +19,8 @@ export interface Database {
           onboarding_account_created: boolean;
           onboarding_first_report: boolean;
           onboarding_welcome_sent: boolean;
+          setup_cost: number;
+          target_margin_pct: number | null;
           created_at: string;
         };
         Insert: {
@@ -28,6 +30,8 @@ export interface Database {
           onboarding_account_created?: boolean;
           onboarding_first_report?: boolean;
           onboarding_welcome_sent?: boolean;
+          setup_cost?: number;
+          target_margin_pct?: number | null;
           created_at?: string;
         };
         Update: Partial<Database["public"]["Tables"]["clients"]["Insert"]>;
@@ -98,6 +102,8 @@ export interface Database {
           ecom_conversion_rate: number;
           ecom_transactions: number;
           ecom_revenue: number;
+          cost_themarketer: number;
+          cost_invoice: number;
           recommendation_1: string | null;
           recommendation_2: string | null;
           recommendation_3: string | null;
@@ -117,6 +123,8 @@ export interface Database {
           ecom_conversion_rate: number;
           ecom_transactions: number;
           ecom_revenue: number;
+          cost_themarketer?: number;
+          cost_invoice?: number;
           recommendation_1?: string | null;
           recommendation_2?: string | null;
           recommendation_3?: string | null;

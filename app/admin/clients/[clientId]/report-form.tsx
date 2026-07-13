@@ -40,6 +40,8 @@ const emptyForm = {
   ecom_conversion_rate: 0,
   ecom_transactions: 0,
   ecom_revenue: 0,
+  cost_themarketer: 0,
+  cost_invoice: 0,
   recommendation_1: "",
   recommendation_2: "",
   recommendation_3: "",
@@ -80,6 +82,8 @@ export default function ReportForm({
           ecom_conversion_rate: report.ecom_conversion_rate,
           ecom_transactions: report.ecom_transactions,
           ecom_revenue: report.ecom_revenue,
+          cost_themarketer: report.cost_themarketer,
+          cost_invoice: report.cost_invoice,
           recommendation_1: report.recommendation_1 ?? "",
           recommendation_2: report.recommendation_2 ?? "",
           recommendation_3: report.recommendation_3 ?? "",
@@ -107,6 +111,7 @@ export default function ReportForm({
     const numericFields: (keyof typeof form)[] = [
       "month", "year", "ecom_sent_emails", "ecom_clicks",
       "ecom_conversion_rate", "ecom_transactions", "ecom_revenue",
+      "cost_themarketer", "cost_invoice",
     ];
     setForm((f) => ({
       ...f,
@@ -409,6 +414,46 @@ export default function ReportForm({
               />
             )
           )}
+        </div>
+      </div>
+
+      <div className="uppr-card" style={{ borderColor: "rgba(74,222,128,.25)" }}>
+        <div className="uppr-card-inner space-y-4">
+          <span className="uppr-label" style={{ color: "#4ADE80" }}>
+            💰 Costuri &amp; profit
+          </span>
+          <div className="grid grid-cols-2 gap-4">
+            {ecomNumberInput("Cost abonament TheMarketer (Lei)", "cost_themarketer")}
+            {ecomNumberInput("Cost factură ta (Lei)", "cost_invoice")}
+          </div>
+          {(() => {
+            const newsletterRevenue = newsletterDrafts.reduce((sum, n) => sum + (n.revenue || 0), 0);
+            const totalRevenue = newsletterRevenue + form.ecom_revenue;
+            const profit = totalRevenue - form.cost_themarketer - form.cost_invoice;
+            const margin = totalRevenue > 0 ? (profit / totalRevenue) * 100 : null;
+            return (
+              <div style={{ display: "flex", gap: 24, padding: "14px 16px", borderRadius: 10, background: "rgba(74,222,128,.06)", flexWrap: "wrap" }}>
+                <div>
+                  <div className="uppr-label" style={{ fontSize: 10, color: "var(--uppr-muted)" }}>Revenue total</div>
+                  <div style={{ fontFamily: "var(--font-mono-label), monospace", fontWeight: 700, fontSize: 16 }}>
+                    {totalRevenue.toLocaleString("ro-RO")} Lei
+                  </div>
+                </div>
+                <div>
+                  <div className="uppr-label" style={{ fontSize: 10, color: "var(--uppr-muted)" }}>Profit estimat</div>
+                  <div style={{ fontFamily: "var(--font-mono-label), monospace", fontWeight: 700, fontSize: 16, color: profit >= 0 ? "#4ADE80" : "#FF6B9D" }}>
+                    {profit.toLocaleString("ro-RO")} Lei
+                  </div>
+                </div>
+                <div>
+                  <div className="uppr-label" style={{ fontSize: 10, color: "var(--uppr-muted)" }}>Marjă</div>
+                  <div style={{ fontFamily: "var(--font-mono-label), monospace", fontWeight: 700, fontSize: 16, color: profit >= 0 ? "#4ADE80" : "#FF6B9D" }}>
+                    {margin !== null ? `${margin.toFixed(1)}%` : "—"}
+                  </div>
+                </div>
+              </div>
+            );
+          })()}
         </div>
       </div>
 
