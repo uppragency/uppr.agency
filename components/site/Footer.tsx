@@ -60,6 +60,7 @@ export default function Footer() {
               <div style={{ display: "flex", flexDirection: "column", gap: 11, fontSize: 14, color: "#B8B2CC" }}>
                 <Link href="/blog/" style={{ color: "inherit" }}>Blog</Link>
                 <Link href="/glossary" style={{ color: "inherit" }}>Glossary</Link>
+                <Link href="/comparison" style={{ color: "inherit" }}>Comparison</Link>
                 <Link href="/subject-line-grader/" style={{ color: "inherit" }}>Subject Line Grader</Link>
                 <Link href="/referral-program/" style={{ color: "inherit" }}>Referral Program</Link>
                 <Link href="/resources" style={{ color: "inherit" }}>Resources</Link>

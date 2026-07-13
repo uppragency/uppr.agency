@@ -530,6 +530,11 @@ function ComparisonTable() {
           </Reveal>
         ))}
       </div>
+      <Reveal style={{ textAlign: "center", marginTop: 32 }}>
+        <a href="/comparison" style={{ fontSize: 13.5, fontWeight: 600, color: "#C084FC", textDecoration: "none" }}>
+          See the full 18-point comparison, including freelancers &amp; in-house hires →
+        </a>
+      </Reveal>
     </section>
   );
 }
