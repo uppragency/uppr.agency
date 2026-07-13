@@ -16,10 +16,11 @@ const COLUMNS = [
     label: "Shipped",
     color: "#4ADE80",
     items: [
-      "Client dashboard with real-time reporting",
-      "Profit & margin tracking per client, per month",
-      "Free tools: Subject Line Grader, Deliverability Checker, List Health Check, and more",
-      "One-click PDF export for monthly reports",
+      "Client dashboard with real-time, per-newsletter reporting",
+      "Profit & margin tracking, break-even indicator, portfolio-wide profit view",
+      "5 free tools: Subject Line Grader, Deliverability Checker, List Health Check, Send Time Optimizer, Spam Word Checker, Unsubscribe Rate Calculator",
+      "One-click PDF export, audit logging, and admin portfolio overview",
+      "18-point comparison page, industry pages, and platform migration guides",
     ],
   },
   {
@@ -36,7 +37,7 @@ const COLUMNS = [
     items: [
       "Public pricing page with indicative packages",
       "Detailed case studies per client vertical",
-      "Romanian-language homepage",
+      "Full Romanian-language homepage (beyond the existing RO landing page)",
       "Expanded template gallery",
     ],
   },
