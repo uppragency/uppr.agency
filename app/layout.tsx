@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import { Space_Grotesk, Space_Mono, Instrument_Sans } from "next/font/google";
 import "./globals.css";
 
@@ -35,7 +36,21 @@ export default function RootLayout({
       lang="ro"
       className={`${spaceGrotesk.variable} ${spaceMono.variable} ${instrumentSans.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        {children}
+        <Script id="themarketer-tracking" strategy="beforeInteractive">
+          {`
+            (function(){
+              mktr_key = "4AQT8EZS";
+              var mktr = document.createElement("script");
+              mktr.async = true;
+              mktr.src = "https://t.themarketer.com/t/j/" + mktr_key;
+              var s = document.getElementsByTagName("script")[0];
+              s.parentNode.insertBefore(mktr,s);
+            })();
+          `}
+        </Script>
+      </body>
     </html>
   );
 }
