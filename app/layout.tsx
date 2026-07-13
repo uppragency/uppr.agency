@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Script from "next/script";
+import { Analytics } from "@vercel/analytics/next";
 import { Space_Grotesk, Space_Mono, Instrument_Sans } from "next/font/google";
 import "./globals.css";
 
@@ -50,6 +51,7 @@ export default function RootLayout({
             })();
           `}
         </Script>
+        <Analytics />
       </body>
     </html>
   );

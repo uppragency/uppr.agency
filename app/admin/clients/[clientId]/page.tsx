@@ -4,6 +4,8 @@ import { createClient } from "@/lib/supabase/server";
 import DuplicateReportButton from "@/components/admin/DuplicateReportButton";
 import OnboardingChecklist from "@/components/admin/OnboardingChecklist";
 import ClientFinancialSettings from "@/components/admin/ClientFinancialSettings";
+import ClientNotes from "@/components/admin/ClientNotes";
+import ArchiveClientButton from "@/components/admin/ArchiveClientButton";
 import { computeProfit, computeMargin } from "@/lib/profit";
 
 const LUNI = [
@@ -21,11 +23,17 @@ export default async function ClientReportsPage({
 
   const { data: client } = await supabase
     .from("clients")
-    .select("id, name, domain, onboarding_account_created, onboarding_first_report, onboarding_welcome_sent, setup_cost, target_margin_pct")
+    .select("id, name, domain, onboarding_account_created, onboarding_first_report, onboarding_welcome_sent, setup_cost, target_margin_pct, archived")
     .eq("id", clientId)
     .single();
 
   if (!client) notFound();
+
+  const { data: notes } = await supabase
+    .from("client_notes")
+    .select("id, note, admin_email, created_at")
+    .eq("client_id", clientId)
+    .order("created_at", { ascending: false });
 
   const { data: reports } = await supabase
     .from("campaign_reports")
@@ -65,15 +73,18 @@ export default async function ClientReportsPage({
               letterSpacing: "-.02em",
             }}
           >
-            {client.name}
+            {client.name} {client.archived && <span className="uppr-badge uppr-badge-draft" style={{ marginLeft: 8, verticalAlign: "middle" }}>Arhivat</span>}
           </h1>
           <p className="text-sm mt-1" style={{ color: "var(--uppr-muted)", fontFamily: "var(--font-mono-label), monospace" }}>
             {client.domain}
           </p>
         </div>
-        <Link href={`/admin/clients/${clientId}/new-report`} className="uppr-btn-primary">
-          + Raport lunar
-        </Link>
+        <div className="flex items-center gap-3">
+          <ArchiveClientButton clientId={clientId} archived={client.archived} />
+          <Link href={`/admin/clients/${clientId}/new-report`} className="uppr-btn-primary">
+            + Raport lunar
+          </Link>
+        </div>
       </div>
 
       <OnboardingChecklist
@@ -90,6 +101,8 @@ export default async function ClientReportsPage({
         initialSetupCost={client.setup_cost}
         initialTargetMargin={client.target_margin_pct}
       />
+
+      <ClientNotes clientId={clientId} notes={notes ?? []} />
 
       {reportsWithTotals?.some((r) => r.profit < 0) && (
         <div

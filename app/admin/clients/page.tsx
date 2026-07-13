@@ -5,18 +5,21 @@ import { computeProfit, computeMargin } from "@/lib/profit";
 export default async function AdminClientsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ sort?: string }>;
+  searchParams: Promise<{ sort?: string; archived?: string }>;
 }) {
-  const { sort } = await searchParams;
+  const { sort, archived } = await searchParams;
+  const showArchived = archived === "1";
   const supabase = await createClient();
 
   const { data: clients } = await supabase
     .from("clients")
-    .select("id, name, domain")
+    .select("id, name, domain, archived")
     .order("name");
 
+  const filteredByArchived = (clients ?? []).filter((c) => (showArchived ? true : !c.archived));
+
   const clientsWithMargin = await Promise.all(
-    (clients ?? []).map(async (client) => {
+    filteredByArchived.map(async (client) => {
       const { data: latestReport } = await supabase
         .from("campaign_reports")
         .select("ecom_revenue, cost_themarketer, cost_invoice, newsletters(revenue)")
@@ -75,28 +78,38 @@ export default async function AdminClientsPage({
           >
             Marjă (desc.)
           </Link>
+          <Link
+            href={showArchived ? "/admin/clients" : "/admin/clients?archived=1"}
+            className="uppr-btn-secondary"
+            style={{ padding: "8px 14px", fontSize: 12.5, minHeight: "auto" }}
+          >
+            {showArchived ? "Ascunde arhivați" : "Arată arhivați"}
+          </Link>
         </div>
       </div>
 
       <div className="grid sm:grid-cols-2 gap-5">
         {sorted.map((client) => (
-          <Link key={client.id} href={`/admin/clients/${client.id}`} className="uppr-card block">
+          <Link key={client.id} href={`/admin/clients/${client.id}`} className="uppr-card block" style={{ opacity: client.archived ? 0.55 : 1 }}>
             <div className="uppr-card-inner">
               <div className="flex items-center justify-between">
                 <p style={{ fontFamily: "var(--font-heading), sans-serif", fontWeight: 600, fontSize: "19px" }}>
                   {client.name}
                 </p>
-                {client.margin !== null && (
-                  <span
-                    className="uppr-badge"
-                    style={{
-                      color: client.margin >= 0 ? "#4ADE80" : "#FF6B9D",
-                      background: client.margin >= 0 ? "rgba(74,222,128,.12)" : "rgba(255,107,157,.12)",
-                    }}
-                  >
-                    {client.margin.toFixed(1)}% marjă
-                  </span>
-                )}
+                <div className="flex items-center gap-2">
+                  {client.archived && <span className="uppr-badge uppr-badge-draft">Arhivat</span>}
+                  {client.margin !== null && (
+                    <span
+                      className="uppr-badge"
+                      style={{
+                        color: client.margin >= 0 ? "#4ADE80" : "#FF6B9D",
+                        background: client.margin >= 0 ? "rgba(74,222,128,.12)" : "rgba(255,107,157,.12)",
+                      }}
+                    >
+                      {client.margin.toFixed(1)}% marjă
+                    </span>
+                  )}
+                </div>
               </div>
               <p className="text-sm mt-1" style={{ color: "var(--uppr-muted)", fontFamily: "var(--font-mono-label), monospace" }}>
                 {client.domain}

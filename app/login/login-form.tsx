@@ -100,6 +100,16 @@ export default function LoginForm() {
             {loading ? "Se autentifică..." : "Autentificare →"}
           </button>
         </form>
+
+        <p className="text-center mt-5 text-sm">
+          <a
+            href="https://wa.me/40790682363?text=Bun%C4%83%2C%20am%20uitat%20parola%20de%20la%20dashboard"
+            target="_blank"
+            style={{ color: "var(--uppr-violet-3)", fontWeight: 600 }}
+          >
+            Ai uitat parola? Scrie-ne pe WhatsApp →
+          </a>
+        </p>
       </div>
     </div>
   );

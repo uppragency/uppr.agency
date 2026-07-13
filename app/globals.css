@@ -380,3 +380,13 @@ a:hover {
   .no-print { display: none !important; }
   body { background: #fff !important; }
 }
+
+/* Mod prezentare client — ascunde cifre exacte, dezvăluie la hover */
+.presentation-mode .uppr-money {
+  filter: blur(6px);
+  transition: filter .15s;
+  cursor: pointer;
+}
+.presentation-mode .uppr-money:hover {
+  filter: none;
+}

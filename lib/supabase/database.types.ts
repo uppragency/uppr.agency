@@ -21,6 +21,7 @@ export interface Database {
           onboarding_welcome_sent: boolean;
           setup_cost: number;
           target_margin_pct: number | null;
+          archived: boolean;
           created_at: string;
         };
         Insert: {
@@ -32,6 +33,7 @@ export interface Database {
           onboarding_welcome_sent?: boolean;
           setup_cost?: number;
           target_margin_pct?: number | null;
+          archived?: boolean;
           created_at?: string;
         };
         Update: Partial<Database["public"]["Tables"]["clients"]["Insert"]>;
@@ -71,6 +73,7 @@ export interface Database {
           meta_description: string | null;
           og_image: string | null;
           status: ArticleStatus;
+          tags: string[];
           published_at: string | null;
           created_at: string;
           updated_at: string;
@@ -84,6 +87,7 @@ export interface Database {
           meta_description?: string | null;
           og_image?: string | null;
           status?: ArticleStatus;
+          tags?: string[];
           published_at?: string | null;
           created_at?: string;
           updated_at?: string;
@@ -175,6 +179,32 @@ export interface Database {
             columns: ["report_id"];
             isOneToOne: false;
             referencedRelation: "campaign_reports";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
+      client_notes: {
+        Row: {
+          id: string;
+          client_id: string;
+          admin_email: string;
+          note: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          client_id: string;
+          admin_email: string;
+          note: string;
+          created_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["client_notes"]["Insert"]>;
+        Relationships: [
+          {
+            foreignKeyName: "client_notes_client_id_fkey";
+            columns: ["client_id"];
+            isOneToOne: false;
+            referencedRelation: "clients";
             referencedColumns: ["id"];
           }
         ];

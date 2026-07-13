@@ -1,7 +1,12 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import CopyMissingButton from "@/components/admin/CopyMissingButton";
+import AllClientsChart from "@/components/admin/AllClientsChart";
 import { computeProfit } from "@/lib/profit";
+
+const LUNI_SCURT = [
+  "Ian", "Feb", "Mar", "Apr", "Mai", "Iun", "Iul", "Aug", "Sep", "Oct", "Noi", "Dec",
+];
 
 const LUNI = [
   "Ianuarie", "Februarie", "Martie", "Aprilie", "Mai", "Iunie",
@@ -49,6 +54,40 @@ export default async function AdminHome() {
     .map((c) => c.name);
   const draftCount = (currentReports ?? []).filter((r) => r.status === "draft").length;
   const publishedArticles = (articles ?? []).filter((a) => a.status === "published").length;
+
+  // Widget "azi": ultima campanie trimisă (oricărui client) + estimare
+  // pentru următorul raport lipsă
+  const { data: latestNewsletter } = await supabase
+    .from("newsletters")
+    .select("title, created_at")
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  const daysSinceLastCampaign = latestNewsletter
+    ? Math.floor((Date.now() - new Date(latestNewsletter.created_at).getTime()) / 86400000)
+    : null;
+
+  // Chart combinat: revenue lunar pe fiecare client, ultimele 6 luni
+  const { data: allReports } = await supabase
+    .from("campaign_reports")
+    .select("client_id, month, year, ecom_revenue, newsletters(revenue)")
+    .order("year", { ascending: false })
+    .order("month", { ascending: false })
+    .limit(60);
+
+  const clientNames = (clients ?? []).map((c) => c.name);
+  const clientIdToName = new Map((clients ?? []).map((c) => [c.id, c.name]));
+  const monthBuckets = new Map<string, Record<string, number | string>>();
+  for (const r of (allReports ?? []).slice(0, 40)) {
+    const label = `${LUNI_SCURT[r.month - 1]} ${r.year}`;
+    const revenue = (r.newsletters ?? []).reduce((s, n) => s + Number(n.revenue), 0) + Number(r.ecom_revenue);
+    const name = clientIdToName.get(r.client_id);
+    if (!name) continue;
+    if (!monthBuckets.has(label)) monthBuckets.set(label, { label });
+    monthBuckets.get(label)![name] = revenue;
+  }
+  const chartData = Array.from(monthBuckets.values()).reverse().slice(-6);
 
   return (
     <div className="space-y-8">
@@ -121,6 +160,34 @@ export default async function AdminHome() {
           </div>
         </div>
       </div>
+
+      {daysSinceLastCampaign !== null && (
+        <div className="uppr-card">
+          <div className="uppr-card-inner">
+            <span className="uppr-label block mb-2" style={{ color: "var(--uppr-violet-3)" }}>
+              📅 Azi
+            </span>
+            <p style={{ fontSize: 14, margin: 0 }}>
+              Ultima campanie trimisă (<strong>{latestNewsletter?.title}</strong>) — acum{" "}
+              <strong>{daysSinceLastCampaign} {daysSinceLastCampaign === 1 ? "zi" : "zile"}</strong>.
+              {missingCount > 0 && (
+                <> {missingCount} client{missingCount === 1 ? "" : "i"} încă {missingCount === 1 ? "așteaptă" : "așteaptă"} raportul lunii curente.</>
+              )}
+            </p>
+          </div>
+        </div>
+      )}
+
+      {chartData.length > 1 && (
+        <div className="uppr-card">
+          <div className="uppr-card-inner">
+            <span className="uppr-label block mb-3" style={{ color: "var(--uppr-violet-3)" }}>
+              Revenue pe client, ultimele luni
+            </span>
+            <AllClientsChart data={chartData} clientNames={clientNames} />
+          </div>
+        </div>
+      )}
 
       <div className="uppr-card">
         <div className="uppr-card-inner" style={{ padding: 0 }}>

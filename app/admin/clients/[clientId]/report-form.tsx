@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import type { Database } from "@/lib/supabase/database.types";
@@ -107,6 +107,35 @@ export default function ReportForm({
       : [{ ...emptyNewsletter }]
   );
 
+  const [restoredDraft, setRestoredDraft] = useState(false);
+  const draftKey = `uppr-report-draft-${clientId}-${report?.id ?? "new"}`;
+
+  // Restaurare draft salvat local, o singură dată la montare (doar dacă e
+  // mai recent decât ce a fost încărcat din server)
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(draftKey);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        setForm(parsed.form);
+        setNewsletterDrafts(parsed.newsletterDrafts);
+        setRestoredDraft(true);
+      }
+    } catch {
+      // draft corupt sau inexistent, ignorăm
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Auto-salvare locală la fiecare modificare
+  useEffect(() => {
+    try {
+      localStorage.setItem(draftKey, JSON.stringify({ form, newsletterDrafts }));
+    } catch {
+      // localStorage indisponibil (mod privat etc.) — nu blocăm nimic
+    }
+  }, [form, newsletterDrafts, draftKey]);
+
   function update<K extends keyof typeof form>(key: K, value: string) {
     const numericFields: (keyof typeof form)[] = [
       "month", "year", "ecom_sent_emails", "ecom_clicks",
@@ -136,6 +165,7 @@ export default function ReportForm({
   }
 
   function removeNewsletter(index: number) {
+    if (!window.confirm("Ștergi acest newsletter din raport?")) return;
     setNewsletterDrafts((drafts) => drafts.filter((_, i) => i !== index));
   }
 
@@ -246,9 +276,27 @@ export default function ReportForm({
     });
 
     setSaving(false);
+    try {
+      localStorage.removeItem(draftKey);
+    } catch {
+      // ignorăm
+    }
     router.push(`/admin/clients/${clientId}`);
     router.refresh();
   }
+
+  // Cmd+S / Ctrl+S salvează draftul rapid, fără mouse
+  useEffect(() => {
+    function onKeyDown(e: KeyboardEvent) {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "s") {
+        e.preventDefault();
+        handleSave("draft");
+      }
+    }
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [form, newsletterDrafts]);
 
   const ecomNumberInput = (label: string, key: keyof typeof form) => (
     <div className="space-y-1.5">
@@ -265,6 +313,11 @@ export default function ReportForm({
 
   return (
     <div className="max-w-2xl space-y-6">
+      {restoredDraft && (
+        <div style={{ padding: "10px 14px", borderRadius: 10, background: "rgba(251,191,36,.1)", border: "1px solid rgba(251,191,36,.3)", fontSize: 13, color: "#FBBF24" }}>
+          ↺ Draft restaurat automat, dintr-o sesiune anterioară nesalvată.
+        </div>
+      )}
       <div className="uppr-card">
         <div className="uppr-card-inner">
           <div className="grid grid-cols-2 gap-4">
@@ -477,13 +530,16 @@ export default function ReportForm({
         </p>
       )}
 
-      <div className="flex gap-3">
+      <div className="flex items-center gap-3 flex-wrap">
         <button onClick={() => handleSave("draft")} disabled={saving} className="uppr-btn-secondary">
           {saving ? "Se salvează..." : "Salvează draft"}
         </button>
         <button onClick={() => handleSave("published")} disabled={saving} className="uppr-btn-primary">
           {saving ? "Se salvează..." : "Publică raport →"}
         </button>
+        <span style={{ fontSize: 11.5, color: "var(--uppr-muted)", fontFamily: "var(--font-mono-label), monospace" }}>
+          ⌘S / Ctrl+S salvează rapid draftul
+        </span>
       </div>
     </div>
   );

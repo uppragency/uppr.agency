@@ -9,7 +9,15 @@ import PaidVsEarnedBars from "@/components/dashboard/PaidVsEarnedBars";
 import DeltaBadge from "@/components/dashboard/DeltaBadge";
 import NewReportBadge from "@/components/dashboard/NewReportBadge";
 import SearchBox from "@/components/dashboard/SearchBox";
+import PresentationModeToggle from "@/components/dashboard/PresentationModeToggle";
 import { computeProfit, computeMargin } from "@/lib/profit";
+
+function getGreeting(): string {
+  const hour = new Date().getHours();
+  if (hour < 12) return "Bună dimineața";
+  if (hour < 18) return "Bună ziua";
+  return "Bună seara";
+}
 
 const LUNI = [
   "Ianuarie", "Februarie", "Martie", "Aprilie", "Mai", "Iunie",
@@ -25,17 +33,19 @@ function StatRow({
   value,
   current,
   previous,
+  isMoney,
 }: {
   label: string;
   value: string | number;
   current?: number;
   previous?: number | null;
+  isMoney?: boolean;
 }) {
   return (
     <div className="flex justify-between items-center py-2" style={{ borderBottom: "1px solid rgba(255,255,255,.05)" }}>
       <dt className="text-sm" style={{ color: "var(--uppr-muted)" }}>{label}</dt>
       <dd style={{ display: "flex", alignItems: "center", gap: 8 }}>
-        <span style={{ ...mono, fontWeight: 700, fontSize: 14 }}>{value}</span>
+        <span className={isMoney ? "uppr-money" : undefined} style={{ ...mono, fontWeight: 700, fontSize: 14 }}>{value}</span>
         {current !== undefined && <DeltaBadge current={current} previous={previous ?? null} />}
       </dd>
     </div>
@@ -54,13 +64,15 @@ export default async function DashboardPage({
   const profile = await getCurrentProfile();
 
   let setupCost = 0;
+  let clientName = "";
   if (profile?.clientId) {
     const { data: clientRow } = await supabase
       .from("clients")
-      .select("setup_cost")
+      .select("setup_cost, name")
       .eq("id", profile.clientId)
       .single();
     setupCost = clientRow?.setup_cost ?? 0;
+    clientName = clientRow?.name ?? "";
   }
 
   // RLS ("Clients view own published reports") filtrează automat după
@@ -123,6 +135,26 @@ export default async function DashboardPage({
     ? reports.reduce((latest, r) => (r.updated_at > latest ? r.updated_at : latest), reports[0].updated_at)
     : null;
 
+  // progres estimativ spre următorul raport — presupunem cadență lunară,
+  // pornind de la data ultimului raport publicat
+  let daysUntilNextReport: number | null = null;
+  let nextReportProgressPct = 0;
+  if (reports?.[0]) {
+    const lastReportDate = new Date(reports[0].created_at);
+    const nextExpected = new Date(lastReportDate);
+    nextExpected.setDate(nextExpected.getDate() + 30);
+    const now = new Date();
+    const totalMs = nextExpected.getTime() - lastReportDate.getTime();
+    const elapsedMs = now.getTime() - lastReportDate.getTime();
+    daysUntilNextReport = Math.max(0, Math.ceil((nextExpected.getTime() - now.getTime()) / 86400000));
+    nextReportProgressPct = Math.min(100, Math.max(0, (elapsedMs / totalMs) * 100));
+  }
+
+  // cost per click implicit al email-ului, comparat cu un cost tipic de ads
+  const totalClicksAllTime = chronological.reduce((sum, r) => sum + r.ecom_clicks, 0);
+  const emailCostPerClick = totalClicksAllTime > 0 ? totalPaid / totalClicksAllTime : null;
+  const TYPICAL_AD_CPC = 2.5; // Lei, reper ilustrativ pentru comparație
+
   // filtrare după search: ascund newsletter-ele care nu se potrivesc, și
   // lunile care rămân fără niciun newsletter potrivit (doar când se caută ceva)
   const visibleReports = (reports ?? [])
@@ -151,11 +183,64 @@ export default async function DashboardPage({
               letterSpacing: "-.02em",
             }}
           >
-            Rapoarte <span className="grad-text">lunare</span>
+            {getGreeting()}{clientName ? `, ${clientName}` : ""} — <span className="grad-text">rapoartele tale</span>
           </h1>
         </div>
-        <NewReportBadge latestUpdatedAt={latestUpdatedAt} />
+        <div className="flex items-center gap-3">
+          <PresentationModeToggle />
+          <NewReportBadge latestUpdatedAt={latestUpdatedAt} />
+        </div>
       </div>
+
+      {daysUntilNextReport !== null && (
+        <div className="uppr-card">
+          <div className="uppr-card-inner">
+            <div className="flex items-center justify-between mb-2">
+              <span className="uppr-label" style={{ color: "var(--uppr-muted)" }}>
+                Următorul raport
+              </span>
+              <span className="text-sm" style={{ ...mono, color: "var(--uppr-fg)" }}>
+                {daysUntilNextReport === 0 ? "gata în curând" : `~${daysUntilNextReport} zile`}
+              </span>
+            </div>
+            <div style={{ height: 8, borderRadius: 999, background: "rgba(255,255,255,.06)", overflow: "hidden" }}>
+              <div
+                style={{
+                  width: `${nextReportProgressPct}%`,
+                  height: "100%",
+                  borderRadius: 999,
+                  background: "linear-gradient(90deg,#7C3AED,#A855F7)",
+                  transition: "width .3s",
+                }}
+              />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {emailCostPerClick !== null && (
+        <div className="uppr-card">
+          <div className="uppr-card-inner">
+            <span className="uppr-label block mb-3" style={{ color: "var(--uppr-violet-3)" }}>
+              Cost per click — email vs. ads
+            </span>
+            <div className="grid sm:grid-cols-2 gap-4">
+              <div>
+                <div className="text-xs mb-1" style={{ color: "var(--uppr-muted)" }}>Prin email (implicit)</div>
+                <div className="uppr-money" style={{ ...mono, fontWeight: 700, fontSize: 20, color: "#4ADE80" }}>
+                  {emailCostPerClick.toFixed(2)} Lei
+                </div>
+              </div>
+              <div>
+                <div className="text-xs mb-1" style={{ color: "var(--uppr-muted)" }}>Cost tipic ads (reper)</div>
+                <div style={{ ...mono, fontWeight: 700, fontSize: 20, color: "#8B84A0" }}>
+                  ~{TYPICAL_AD_CPC.toFixed(2)} Lei
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {!reports?.length && (
         <div className="uppr-card">
@@ -305,7 +390,7 @@ export default async function DashboardPage({
                     <div style={{ fontSize: 12, fontWeight: 700, color: "#FBBF24", ...mono, textTransform: "uppercase", letterSpacing: ".04em" }}>
                       Cel mai performant newsletter
                     </div>
-                    <div style={{ fontSize: 14, fontWeight: 600, marginTop: 2 }}>
+                    <div style={{ fontSize: 14, fontWeight: 600, marginTop: 2 }} className="uppr-money">
                       {bestNewsletter.title} — {Number(bestNewsletter.revenue).toLocaleString("ro-RO")} Lei
                     </div>
                   </div>
@@ -339,7 +424,7 @@ export default async function DashboardPage({
                               <td>{n.unique_open_rate}%</td>
                               <td>{n.unique_click_rate}%</td>
                               <td>{n.transactions}</td>
-                              <td>{Number(n.revenue).toLocaleString("ro-RO")} Lei</td>
+                              <td className="uppr-money">{Number(n.revenue).toLocaleString("ro-RO")} Lei</td>
                             </tr>
                           ))}
                         </tbody>
@@ -350,7 +435,7 @@ export default async function DashboardPage({
                             <td />
                             <td />
                             <td />
-                            <td style={{ fontWeight: 700, color: "var(--uppr-violet-3)" }}>
+                            <td style={{ fontWeight: 700, color: "var(--uppr-violet-3)" }} className="uppr-money">
                               {campaignRevenue.toLocaleString("ro-RO")} Lei
                             </td>
                           </tr>
@@ -406,15 +491,16 @@ export default async function DashboardPage({
                   <StatRow label="Clicks" value={report.ecom_clicks} current={report.ecom_clicks} previous={previous?.ecom_clicks} />
                   <StatRow label="Conversion rate" value={`${report.ecom_conversion_rate}%`} current={report.ecom_conversion_rate} previous={previous?.ecom_conversion_rate} />
                   <StatRow label="Transactions" value={report.ecom_transactions} current={report.ecom_transactions} previous={previous?.ecom_transactions} />
-                  <StatRow label="Revenue" value={`${report.ecom_revenue} Lei`} current={Number(report.ecom_revenue)} previous={previous ? Number(previous.ecom_revenue) : null} />
-                  <StatRow label="Revenue campanii" value={`${campaignRevenue.toLocaleString("ro-RO")} Lei`} current={campaignRevenue} previous={prevCampaignRevenue} />
+                  <StatRow label="Revenue" value={`${report.ecom_revenue} Lei`} current={Number(report.ecom_revenue)} previous={previous ? Number(previous.ecom_revenue) : null} isMoney />
+                  <StatRow label="Revenue campanii" value={`${campaignRevenue.toLocaleString("ro-RO")} Lei`} current={campaignRevenue} previous={prevCampaignRevenue} isMoney />
                   <StatRow
                     label="Profit net"
                     value={`${profit.toLocaleString("ro-RO")} Lei`}
                     current={profit}
                     previous={prevProfit}
+                    isMoney
                   />
-                  <StatRow label="Marjă" value={margin !== null ? `${margin.toFixed(1)}%` : "—"} />
+                  <StatRow label="Marjă" value={margin !== null ? `${margin.toFixed(1)}%` : "—"} isMoney />
                 </dl>
               </div>
 

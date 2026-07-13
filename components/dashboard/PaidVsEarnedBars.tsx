@@ -16,7 +16,7 @@ export default function PaidVsEarnedBars({
       <div>
         <div className="flex justify-between mb-1.5">
           <span style={{ fontSize: 12.5, color: "#A29DB8" }}>Ce ai plătit (total)</span>
-          <span style={{ fontSize: 13, fontWeight: 700, ...mono, color: "#FF6B9D" }}>
+          <span style={{ fontSize: 13, fontWeight: 700, ...mono, color: "#FF6B9D" }} className="uppr-money">
             {totalPaid.toLocaleString("ro-RO")} Lei
           </span>
         </div>
@@ -27,7 +27,7 @@ export default function PaidVsEarnedBars({
       <div>
         <div className="flex justify-between mb-1.5">
           <span style={{ fontSize: 12.5, color: "#A29DB8" }}>Ce ai câștigat (total)</span>
-          <span style={{ fontSize: 13, fontWeight: 700, ...mono, color: "#4ADE80" }}>
+          <span style={{ fontSize: 13, fontWeight: 700, ...mono, color: "#4ADE80" }} className="uppr-money">
             {totalEarned.toLocaleString("ro-RO")} Lei
           </span>
         </div>

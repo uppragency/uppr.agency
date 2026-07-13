@@ -97,6 +97,19 @@ export default async function ArticlePage({
           <Link href="/blog/" style={{ fontWeight: 600, fontSize: 13, color: "#A29DB8" }}>
             ← Blog
           </Link>
+          {!!article.tags?.length && (
+            <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginTop: 20 }}>
+              {article.tags.map((t) => (
+                <Link
+                  key={t}
+                  href={`/blog?tag=${encodeURIComponent(t)}`}
+                  style={{ fontSize: 11, padding: "4px 10px", borderRadius: 999, background: "rgba(168,85,247,.1)", color: "var(--uppr-violet-3)", fontFamily: "var(--font-mono-label), monospace" }}
+                >
+                  {t}
+                </Link>
+              ))}
+            </div>
+          )}
           <h1
             style={{
               margin: "24px 0 18px",
