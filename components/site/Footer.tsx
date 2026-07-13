@@ -41,7 +41,7 @@ export default function Footer() {
             </p>
           </div>
 
-          <div style={{ display: "flex", gap: "clamp(32px,6vw,64px)", flexWrap: "wrap" }}>
+          <div style={{ display: "flex", gap: "clamp(28px,5vw,52px)", flexWrap: "wrap" }}>
             <div>
               <div className="uppr-label" style={{ color: "#6E6980", marginBottom: 14 }}>
                 Agency
@@ -50,10 +50,19 @@ export default function Footer() {
                 <a href="/#lm-services" style={{ color: "inherit" }}>Services</a>
                 <a href="/#lm-results" style={{ color: "inherit" }}>Results</a>
                 <a href="/#lm-problem" style={{ color: "inherit" }}>Why retention</a>
+                <Link href="/contact" style={{ color: "inherit" }}>Contact</Link>
+              </div>
+            </div>
+            <div>
+              <div className="uppr-label" style={{ color: "#6E6980", marginBottom: 14 }}>
+                Tools
+              </div>
+              <div style={{ display: "flex", flexDirection: "column", gap: 11, fontSize: 14, color: "#B8B2CC" }}>
                 <Link href="/blog/" style={{ color: "inherit" }}>Blog</Link>
+                <Link href="/glossary" style={{ color: "inherit" }}>Glossary</Link>
                 <Link href="/subject-line-grader/" style={{ color: "inherit" }}>Subject Line Grader</Link>
                 <Link href="/referral-program/" style={{ color: "inherit" }}>Referral Program</Link>
-                <Link href="/status" style={{ color: "inherit" }}>Status</Link>
+                <Link href="/resources" style={{ color: "inherit" }}>Resources</Link>
               </div>
             </div>
             <div>
@@ -87,7 +96,12 @@ export default function Footer() {
             color: "#6E6980",
           }}
         >
-          <span style={{ fontFamily: "var(--font-mono-label), monospace" }}>© 2026 UPPR Agency</span>
+          <span style={{ display: "inline-flex", alignItems: "center", gap: 16, flexWrap: "wrap" }}>
+            <span style={{ fontFamily: "var(--font-mono-label), monospace" }}>© 2026 UPPR Agency</span>
+            <Link href="/privacy" style={{ color: "inherit" }}>Privacy</Link>
+            <Link href="/terms" style={{ color: "inherit" }}>Terms</Link>
+            <Link href="/status" style={{ color: "inherit" }}>Status</Link>
+          </span>
           <span style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
             <a href="https://api.themarketer.com/invite/upprmarketing" target="_blank" style={{ color: "inherit" }}>
               TheMarketer
