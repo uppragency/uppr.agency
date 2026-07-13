@@ -29,8 +29,26 @@ const GROUPS: { label: string; links: { href: string; title: string }[] }[] = [
       { href: "/blog", title: "Blog" },
       { href: "/glossary", title: "Glossary" },
       { href: "/subject-line-grader", title: "Subject Line Grader" },
+      { href: "/deliverability-checker", title: "Deliverability Checker" },
+      { href: "/list-health-check", title: "List Health Check" },
       { href: "/referral-program", title: "Referral Program" },
       { href: "/resources", title: "Resources" },
+    ],
+  },
+  {
+    label: "Industries",
+    links: [
+      { href: "/for-ecommerce", title: "For Ecommerce" },
+      { href: "/for-services", title: "For Service Businesses" },
+      { href: "/for-saas", title: "For SaaS" },
+    ],
+  },
+  {
+    label: "Switching platforms",
+    links: [
+      { href: "/switch-from-mailchimp", title: "Switching from Mailchimp" },
+      { href: "/switch-from-klaviyo", title: "Switching from Klaviyo" },
+      { href: "/switch-from-newsman", title: "Switching from Newsman" },
     ],
   },
   {

@@ -65,6 +65,24 @@ export default async function ResourcesPage() {
                   </p>
                 </div>
               </Link>
+              <Link href="/deliverability-checker" className="uppr-card">
+                <div className="uppr-card-inner" style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                  <span style={{ fontSize: 24 }}>✓</span>
+                  <h3 style={{ margin: 0, ...heading, fontWeight: 600, fontSize: 17 }}>Deliverability Checker</h3>
+                  <p style={{ margin: 0, fontSize: 13.5, lineHeight: 1.55, color: "#A29DB8" }}>
+                    Check your domain's SPF, DMARC, and DKIM records instantly.
+                  </p>
+                </div>
+              </Link>
+              <Link href="/list-health-check" className="uppr-card">
+                <div className="uppr-card-inner" style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                  <span style={{ fontSize: 24 }}>♡</span>
+                  <h3 style={{ margin: 0, ...heading, fontWeight: 600, fontSize: 17 }}>List Health Check</h3>
+                  <p style={{ margin: 0, fontSize: 13.5, lineHeight: 1.55, color: "#A29DB8" }}>
+                    6 quick questions, one clear score for how healthy your list really is.
+                  </p>
+                </div>
+              </Link>
               <Link href="/glossary" className="uppr-card">
                 <div className="uppr-card-inner" style={{ display: "flex", flexDirection: "column", gap: 10 }}>
                   <span style={{ fontSize: 24 }}>📖</span>

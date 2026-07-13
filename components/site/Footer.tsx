@@ -63,6 +63,8 @@ export default function Footer() {
                 <Link href="/glossary" style={{ color: "inherit" }}>Glossary</Link>
                 <Link href="/comparison" style={{ color: "inherit" }}>Comparison</Link>
                 <Link href="/subject-line-grader/" style={{ color: "inherit" }}>Subject Line Grader</Link>
+                <Link href="/deliverability-checker" style={{ color: "inherit" }}>Deliverability Checker</Link>
+                <Link href="/list-health-check" style={{ color: "inherit" }}>List Health Check</Link>
                 <Link href="/referral-program/" style={{ color: "inherit" }}>Referral Program</Link>
                 <Link href="/resources" style={{ color: "inherit" }}>Resources</Link>
               </div>
