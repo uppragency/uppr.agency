@@ -50,6 +50,7 @@ export default function Footer() {
                 <a href="/#lm-services" style={{ color: "inherit" }}>Services</a>
                 <a href="/#lm-results" style={{ color: "inherit" }}>Results</a>
                 <a href="/#lm-problem" style={{ color: "inherit" }}>Why retention</a>
+                <Link href="/how-we-work" style={{ color: "inherit" }}>How We Work</Link>
                 <Link href="/contact" style={{ color: "inherit" }}>Contact</Link>
               </div>
             </div>
@@ -102,6 +103,7 @@ export default function Footer() {
             <Link href="/privacy" style={{ color: "inherit" }}>Privacy</Link>
             <Link href="/terms" style={{ color: "inherit" }}>Terms</Link>
             <Link href="/status" style={{ color: "inherit" }}>Status</Link>
+            <Link href="/sitemap" style={{ color: "inherit" }}>Sitemap</Link>
           </span>
           <span style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
             <a href="https://api.themarketer.com/invite/upprmarketing" target="_blank" style={{ color: "inherit" }}>
