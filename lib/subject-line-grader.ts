@@ -14,7 +14,7 @@ export interface AnalysisResult {
   langBadge: string;
 }
 
-const SPAM_WORDS: Record<Lang, string[]> = {
+export const SPAM_WORDS: Record<Lang, string[]> = {
   en: ["free", "buy now", "click here", "act now", "urgent", "guarantee", "guaranteed", "winner", "cash", "credit", "risk-free", "no obligation", "cancel anytime", "limited time", "% off", "subscribe now", "order now", "don't delete", "congratulations", "cheap", "discount code inside"],
   ro: ["gratuit", "gratis", "cumpără acum", "cumperi acum", "click aici", "apasă aici", "acționează acum", "urgent", "garantat", "garantie", "câștigător", "castigator", "bani gheață", "credit", "fără obligații", "anulează oricând", "timp limitat", "% reducere", "abonează-te acum", "comandă acum", "comanda acum", "nu ștergeți", "felicitări", "ieftin", "cod reducere", "ultima șansă", "ultima sansa"],
 };

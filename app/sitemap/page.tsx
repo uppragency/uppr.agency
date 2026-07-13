@@ -31,6 +31,9 @@ const GROUPS: { label: string; links: { href: string; title: string }[] }[] = [
       { href: "/subject-line-grader", title: "Subject Line Grader" },
       { href: "/deliverability-checker", title: "Deliverability Checker" },
       { href: "/list-health-check", title: "List Health Check" },
+      { href: "/send-time-optimizer", title: "Send Time Optimizer" },
+      { href: "/spam-word-checker", title: "Spam Word Checker" },
+      { href: "/unsubscribe-rate-calculator", title: "Unsubscribe Rate Calculator" },
       { href: "/referral-program", title: "Referral Program" },
       { href: "/resources", title: "Resources" },
     ],
@@ -56,6 +59,13 @@ const GROUPS: { label: string; links: { href: string; title: string }[] }[] = [
     links: [
       { href: "/privacy", title: "Privacy Policy" },
       { href: "/terms", title: "Terms of Service" },
+    ],
+  },
+  {
+    label: "Product",
+    links: [
+      { href: "/changelog", title: "Changelog" },
+      { href: "/roadmap", title: "Roadmap" },
     ],
   },
   {

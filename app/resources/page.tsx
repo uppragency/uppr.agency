@@ -83,6 +83,33 @@ export default async function ResourcesPage() {
                   </p>
                 </div>
               </Link>
+              <Link href="/send-time-optimizer" className="uppr-card">
+                <div className="uppr-card-inner" style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                  <span style={{ fontSize: 24 }}>⏰</span>
+                  <h3 style={{ margin: 0, ...heading, fontWeight: 600, fontSize: 17 }}>Send Time Optimizer</h3>
+                  <p style={{ margin: 0, fontSize: 13.5, lineHeight: 1.55, color: "#A29DB8" }}>
+                    Get a recommended send day and time based on your industry and timezone.
+                  </p>
+                </div>
+              </Link>
+              <Link href="/spam-word-checker" className="uppr-card">
+                <div className="uppr-card-inner" style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                  <span style={{ fontSize: 24 }}>🚫</span>
+                  <h3 style={{ margin: 0, ...heading, fontWeight: 600, fontSize: 17 }}>Spam Word Checker</h3>
+                  <p style={{ margin: 0, fontSize: 13.5, lineHeight: 1.55, color: "#A29DB8" }}>
+                    Check your full email body for spam-trigger words before you hit send.
+                  </p>
+                </div>
+              </Link>
+              <Link href="/unsubscribe-rate-calculator" className="uppr-card">
+                <div className="uppr-card-inner" style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                  <span style={{ fontSize: 24 }}>📉</span>
+                  <h3 style={{ margin: 0, ...heading, fontWeight: 600, fontSize: 17 }}>Unsubscribe Rate Calculator</h3>
+                  <p style={{ margin: 0, fontSize: 13.5, lineHeight: 1.55, color: "#A29DB8" }}>
+                    See how your unsubscribe rate compares to industry benchmarks.
+                  </p>
+                </div>
+              </Link>
               <Link href="/glossary" className="uppr-card">
                 <div className="uppr-card-inner" style={{ display: "flex", flexDirection: "column", gap: 10 }}>
                   <span style={{ fontSize: 24 }}>📖</span>

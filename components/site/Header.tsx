@@ -34,8 +34,8 @@ export default function Header() {
           <Image src="/logo.png" width={34} height={34} alt="UPPR Agency logo" style={{ height: "auto" }} />
         </Link>
         <div style={{ display: "flex", alignItems: "center", gap: 18 }}>
-          <Link href="/blog/" className="text-sm font-semibold" style={{ color: "#F5F3FF" }}>
-            Blog
+          <Link href="/resources" className="text-sm font-semibold" style={{ color: "#F5F3FF" }}>
+            Resources
           </Link>
           <Link
             href="/login"

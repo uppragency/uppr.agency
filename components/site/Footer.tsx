@@ -65,6 +65,9 @@ export default function Footer() {
                 <Link href="/subject-line-grader/" style={{ color: "inherit" }}>Subject Line Grader</Link>
                 <Link href="/deliverability-checker" style={{ color: "inherit" }}>Deliverability Checker</Link>
                 <Link href="/list-health-check" style={{ color: "inherit" }}>List Health Check</Link>
+                <Link href="/send-time-optimizer" style={{ color: "inherit" }}>Send Time Optimizer</Link>
+                <Link href="/spam-word-checker" style={{ color: "inherit" }}>Spam Word Checker</Link>
+                <Link href="/unsubscribe-rate-calculator" style={{ color: "inherit" }}>Unsubscribe Rate Calculator</Link>
                 <Link href="/referral-program/" style={{ color: "inherit" }}>Referral Program</Link>
                 <Link href="/resources" style={{ color: "inherit" }}>Resources</Link>
               </div>
@@ -106,6 +109,8 @@ export default function Footer() {
             <Link href="/terms" style={{ color: "inherit" }}>Terms</Link>
             <Link href="/status" style={{ color: "inherit" }}>Status</Link>
             <Link href="/sitemap" style={{ color: "inherit" }}>Sitemap</Link>
+            <Link href="/changelog" style={{ color: "inherit" }}>Changelog</Link>
+            <Link href="/roadmap" style={{ color: "inherit" }}>Roadmap</Link>
           </span>
           <span style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
             <a href="https://api.themarketer.com/invite/upprmarketing" target="_blank" style={{ color: "inherit" }}>
