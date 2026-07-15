@@ -10,6 +10,8 @@ import DeltaBadge from "@/components/dashboard/DeltaBadge";
 import NewReportBadge from "@/components/dashboard/NewReportBadge";
 import SearchBox from "@/components/dashboard/SearchBox";
 import PresentationModeToggle from "@/components/dashboard/PresentationModeToggle";
+import StatSummaryBar, { type StatSummaryItem } from "@/components/dashboard/StatSummaryBar";
+import CampaignFunnel from "@/components/dashboard/CampaignFunnel";
 import { computeProfit, computeMargin } from "@/lib/profit";
 
 function getGreeting(): string {
@@ -155,6 +157,92 @@ export default async function DashboardPage({
   const emailCostPerClick = totalClicksAllTime > 0 ? totalPaid / totalClicksAllTime : null;
   const TYPICAL_AD_CPC = 2.5; // Lei, reper ilustrativ pentru comparație
 
+  // bara de sumar de sus — cifrele lunii celei mai recente, cu sparkline din
+  // istoric și comparație vs. luna anterioară (toate calculate din date reale)
+  function pctDelta(current: number, previous: number | null | undefined): number | null {
+    if (previous === null || previous === undefined || previous === 0) return null;
+    return ((current - previous) / previous) * 100;
+  }
+
+  let summaryStats: StatSummaryItem[] | null = null;
+  if (reports?.[0]) {
+    const latest = reports[0];
+    const prevForBar = reports[1];
+
+    const latestCampaignRevenue = (latest.newsletters ?? []).reduce((s, n) => s + Number(n.revenue), 0);
+    const latestTotalRevenue = latestCampaignRevenue + Number(latest.ecom_revenue);
+    const latestProfit = computeProfit(latestTotalRevenue, Number(latest.cost_themarketer), Number(latest.cost_invoice));
+    const latestMargin = computeMargin(latestProfit, latestTotalRevenue);
+    const latestNewsletterCount = (latest.newsletters ?? []).length;
+
+    let prevTotalRevenue: number | null = null;
+    let prevProfit: number | null = null;
+    let prevNewsletterCount: number | null = null;
+    if (prevForBar) {
+      const prevCampaignRevenue2 = (prevForBar.newsletters ?? []).reduce((s, n) => s + Number(n.revenue), 0);
+      prevTotalRevenue = prevCampaignRevenue2 + Number(prevForBar.ecom_revenue);
+      prevProfit = computeProfit(prevTotalRevenue, Number(prevForBar.cost_themarketer), Number(prevForBar.cost_invoice));
+      prevNewsletterCount = (prevForBar.newsletters ?? []).length;
+    }
+
+    const revenueSparkline = chronological.slice(-7).map((r) => {
+      const cr = (r.newsletters ?? []).reduce((s, n) => s + Number(n.revenue), 0);
+      return cr + Number(r.ecom_revenue);
+    });
+    const profitSparkline = profitTrendData.slice(-7).map((d) => Math.max(0, d.profit));
+    const newsletterCountSparkline = chronological.slice(-7).map((r) => (r.newsletters ?? []).length);
+
+    summaryStats = [
+      {
+        key: "revenue",
+        icon: "💰",
+        iconColor: "#4ADE80",
+        iconBg: "rgba(74,222,128,.14)",
+        label: "Revenue total",
+        value: `${latestTotalRevenue.toLocaleString("ro-RO")} Lei`,
+        isMoney: true,
+        delta: pctDelta(latestTotalRevenue, prevTotalRevenue),
+        sparkline: revenueSparkline,
+        sparklineColor: "#4ADE80",
+      },
+      {
+        key: "profit",
+        icon: "✦",
+        iconColor: "#C084FC",
+        iconBg: "rgba(168,85,247,.16)",
+        label: "Profit net",
+        value: `${latestProfit.toLocaleString("ro-RO")} Lei`,
+        isMoney: true,
+        delta: pctDelta(latestProfit, prevProfit),
+        sparkline: profitSparkline,
+        sparklineColor: "#C084FC",
+      },
+      {
+        key: "margin",
+        icon: "◐",
+        iconColor: "#FDBA74",
+        iconBg: "rgba(253,186,116,.16)",
+        label: "Marjă",
+        value: latestMargin !== null ? `${latestMargin.toFixed(1)}%` : "—",
+        isMoney: true,
+        delta: null,
+        sparkline: profitSparkline,
+        sparklineColor: "#FDBA74",
+      },
+      {
+        key: "newsletters",
+        icon: "✉",
+        iconColor: "#60A5FA",
+        iconBg: "rgba(96,165,250,.16)",
+        label: "Newsletter-e trimise",
+        value: String(latestNewsletterCount),
+        delta: pctDelta(latestNewsletterCount, prevNewsletterCount),
+        sparkline: newsletterCountSparkline,
+        sparklineColor: "#60A5FA",
+      },
+    ];
+  }
+
   // filtrare după search: ascund newsletter-ele care nu se potrivesc, și
   // lunile care rămân fără niciun newsletter potrivit (doar când se caută ceva)
   const visibleReports = (reports ?? [])
@@ -191,6 +279,8 @@ export default async function DashboardPage({
           <NewReportBadge latestUpdatedAt={latestUpdatedAt} />
         </div>
       </div>
+
+      {summaryStats && !searchTerm && <StatSummaryBar stats={summaryStats} />}
 
       {daysUntilNextReport !== null && (
         <div className="uppr-card">
@@ -404,6 +494,10 @@ export default async function DashboardPage({
 
                 {newsletters.length > 0 ? (
                   <>
+                    <div style={{ overflowX: "auto", marginBottom: 24 }}>
+                      <CampaignFunnel newsletters={newsletters} />
+                    </div>
+
                     <div style={{ overflowX: "auto", marginBottom: 20 }}>
                       <table className="uppr-table" style={{ minWidth: 560 }}>
                         <thead>
