@@ -34,33 +34,29 @@ export default function CampaignFunnel({ newsletters }: { newsletters: Newslette
   return (
     <div>
       <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fit,minmax(min(140px,100%),1fr))",
-          gap: 0,
-        }}
+        className="grid grid-cols-2 sm:grid-cols-4"
+        style={{ gap: "16px 0" }}
       >
-        {steps.map((s, i) => (
+        {steps.map((s) => (
           <div
             key={s.key}
             style={{
-              padding: "0 18px",
-              borderLeft: i > 0 ? "1px solid rgba(255,255,255,.07)" : undefined,
+              padding: "0 18px 16px",
             }}
           >
-            <div style={{ ...heading, fontWeight: 700, fontSize: 24 }}>
+            <div style={{ ...heading, fontWeight: 700, fontSize: 24, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
               {s.value.toLocaleString("ro-RO")}
             </div>
             <div style={{ fontSize: 11, color: "#8B84A0", ...mono, textTransform: "uppercase", letterSpacing: ".03em", margin: "3px 0 10px" }}>
               {s.label}
             </div>
-            <div style={{ display: "flex", gap: 2, alignItems: "flex-end", height: 22 }}>
+            <div style={{ display: "flex", gap: 2, alignItems: "flex-end", height: 22, overflow: "hidden" }}>
               {buildBars(barCount, Array.from({ length: barCount }, (_, bi) => Math.max(4, s.pct - bi * (s.pct / (barCount + 2))))).map((h, bi) => (
                 <div
                   key={bi}
                   style={{
                     flex: 1,
-                    height: `${Math.max(4, h)}%`,
+                    height: `${Math.min(100, Math.max(4, h))}%`,
                     borderRadius: 2,
                     background: s.color,
                     opacity: 0.35 + (0.65 * (barCount - bi)) / barCount,
@@ -68,7 +64,9 @@ export default function CampaignFunnel({ newsletters }: { newsletters: Newslette
                 />
               ))}
             </div>
-            <div style={{ fontSize: 11, color: "#6E6980", marginTop: 8, ...mono }}>{s.pct.toFixed(1)}%</div>
+            <div style={{ fontSize: 11, color: "#6E6980", marginTop: 8, ...mono }}>
+              {s.pct > 999 ? "999+%" : `${s.pct.toFixed(1)}%`}
+            </div>
           </div>
         ))}
       </div>

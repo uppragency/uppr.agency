@@ -50,7 +50,7 @@ export default async function DashboardLayout({
           </form>
         </div>
       </header>
-      <main className="relative z-[1] flex-1 p-6 md:p-8 max-w-4xl w-full mx-auto">{children}</main>
+      <main className="relative z-[1] flex-1 p-6 md:p-8 max-w-[1400px] w-full mx-auto">{children}</main>
     </div>
   );
 }

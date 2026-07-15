@@ -282,53 +282,57 @@ export default async function DashboardPage({
 
       {summaryStats && !searchTerm && <StatSummaryBar stats={summaryStats} />}
 
-      {daysUntilNextReport !== null && (
-        <div className="uppr-card">
-          <div className="uppr-card-inner">
-            <div className="flex items-center justify-between mb-2">
-              <span className="uppr-label" style={{ color: "var(--uppr-muted)" }}>
-                Următorul raport
-              </span>
-              <span className="text-sm" style={{ ...mono, color: "var(--uppr-fg)" }}>
-                {daysUntilNextReport === 0 ? "gata în curând" : `~${daysUntilNextReport} zile`}
-              </span>
+      {(daysUntilNextReport !== null || emailCostPerClick !== null) && (
+        <div className="grid lg:grid-cols-2 gap-6">
+          {daysUntilNextReport !== null && (
+            <div className="uppr-card">
+              <div className="uppr-card-inner">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="uppr-label" style={{ color: "var(--uppr-muted)" }}>
+                    Următorul raport
+                  </span>
+                  <span className="text-sm" style={{ ...mono, color: "var(--uppr-fg)" }}>
+                    {daysUntilNextReport === 0 ? "gata în curând" : `~${daysUntilNextReport} zile`}
+                  </span>
+                </div>
+                <div style={{ height: 8, borderRadius: 999, background: "rgba(255,255,255,.06)", overflow: "hidden" }}>
+                  <div
+                    style={{
+                      width: `${nextReportProgressPct}%`,
+                      height: "100%",
+                      borderRadius: 999,
+                      background: "linear-gradient(90deg,#7C3AED,#A855F7)",
+                      transition: "width .3s",
+                    }}
+                  />
+                </div>
+              </div>
             </div>
-            <div style={{ height: 8, borderRadius: 999, background: "rgba(255,255,255,.06)", overflow: "hidden" }}>
-              <div
-                style={{
-                  width: `${nextReportProgressPct}%`,
-                  height: "100%",
-                  borderRadius: 999,
-                  background: "linear-gradient(90deg,#7C3AED,#A855F7)",
-                  transition: "width .3s",
-                }}
-              />
-            </div>
-          </div>
-        </div>
-      )}
+          )}
 
-      {emailCostPerClick !== null && (
-        <div className="uppr-card">
-          <div className="uppr-card-inner">
-            <span className="uppr-label block mb-3" style={{ color: "var(--uppr-violet-3)" }}>
-              Cost per click — email vs. ads
-            </span>
-            <div className="grid sm:grid-cols-2 gap-4">
-              <div>
-                <div className="text-xs mb-1" style={{ color: "var(--uppr-muted)" }}>Prin email (implicit)</div>
-                <div className="uppr-money" style={{ ...mono, fontWeight: 700, fontSize: 20, color: "#4ADE80" }}>
-                  {emailCostPerClick.toFixed(2)} Lei
-                </div>
-              </div>
-              <div>
-                <div className="text-xs mb-1" style={{ color: "var(--uppr-muted)" }}>Cost tipic ads (reper)</div>
-                <div style={{ ...mono, fontWeight: 700, fontSize: 20, color: "#8B84A0" }}>
-                  ~{TYPICAL_AD_CPC.toFixed(2)} Lei
+          {emailCostPerClick !== null && (
+            <div className="uppr-card">
+              <div className="uppr-card-inner">
+                <span className="uppr-label block mb-3" style={{ color: "var(--uppr-violet-3)" }}>
+                  Cost per click — email vs. ads
+                </span>
+                <div className="grid sm:grid-cols-2 gap-4">
+                  <div>
+                    <div className="text-xs mb-1" style={{ color: "var(--uppr-muted)" }}>Prin email (implicit)</div>
+                    <div className="uppr-money" style={{ ...mono, fontWeight: 700, fontSize: 20, color: "#4ADE80" }}>
+                      {emailCostPerClick.toFixed(2)} Lei
+                    </div>
+                  </div>
+                  <div>
+                    <div className="text-xs mb-1" style={{ color: "var(--uppr-muted)" }}>Cost tipic ads (reper)</div>
+                    <div style={{ ...mono, fontWeight: 700, fontSize: 20, color: "#8B84A0" }}>
+                      ~{TYPICAL_AD_CPC.toFixed(2)} Lei
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
+          )}
         </div>
       )}
 

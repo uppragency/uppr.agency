@@ -42,16 +42,15 @@ function Sparkline({ values, color }: { values: number[]; color: string }) {
 export default function StatSummaryBar({ stats }: { stats: Stat[] }) {
   return (
     <div
+      className="grid grid-cols-2 lg:grid-cols-4"
       style={{
-        display: "grid",
-        gridTemplateColumns: "repeat(auto-fit,minmax(min(220px,100%),1fr))",
         borderRadius: 20,
         overflow: "hidden",
         border: "1px solid rgba(255,255,255,.08)",
         background: "linear-gradient(165deg,#130C24,#0A0718)",
       }}
     >
-      {stats.map((s, i) => (
+      {stats.map((s) => (
         <div
           key={s.key}
           style={{
@@ -59,7 +58,7 @@ export default function StatSummaryBar({ stats }: { stats: Stat[] }) {
             display: "flex",
             flexDirection: "column",
             gap: 10,
-            borderRight: i < stats.length - 1 ? "1px solid rgba(255,255,255,.06)" : undefined,
+            borderRight: "1px solid rgba(255,255,255,.06)",
             borderBottom: "1px solid rgba(255,255,255,.06)",
           }}
         >
