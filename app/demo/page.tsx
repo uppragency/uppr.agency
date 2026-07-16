@@ -4,6 +4,7 @@ import Header from "@/components/site/Header";
 import Footer from "@/components/site/Footer";
 import SiteBackground from "@/components/site/SiteBackground";
 import FlowDemoTabs from "@/components/site/FlowDemoTabs";
+import PopupPreviewDemo from "@/components/site/PopupPreviewDemo";
 
 export const metadata: Metadata = {
   title: "Demo | UPPR Agency",
@@ -26,21 +27,25 @@ const CUSTOMER_TOUCHPOINTS = [
     icon: "👋",
     title: "Welcome series",
     desc: "5 emails over 2 weeks, from first-touch discount to last-call urgency — timed automatically from signup.",
+    example: "\"Welcome to the list 🎉\" — sent instantly, with a 15% first-order code.",
   },
   {
     icon: "🛒",
     title: "Abandoned cart recovery",
     desc: "A short, tightly-timed sequence that brings someone back to a cart they left, before they forget why they wanted it.",
+    example: "\"You left something behind\" — sent 1 hour after checkout is abandoned.",
   },
   {
     icon: "🏆",
     title: "Loyalty & rewards",
     desc: "Points, tiers, and perks that show up right where a customer already is — inbox, on-site, or SMS.",
+    example: "\"You just unlocked Gold tier ✨\" — triggered automatically at a spend threshold.",
   },
   {
     icon: "💬",
     title: "SMS win-back",
     desc: "A short, direct nudge for contacts who've gone quiet, on the channel with the highest open rate there is.",
+    example: "\"Hey, it's been a while — here's 10% to come back 👋\" — sent after 60 days of silence.",
   },
 ];
 
@@ -49,21 +54,25 @@ const CAMPAIGN_TYPES = [
     icon: "💸",
     title: "Sales emails",
     desc: "Direct promotional sends when you have something specific to push — a new product, a restock, a seasonal push.",
+    example: "\"Back in stock: the one everyone's been asking about\" — sent to past viewers of that product.",
   },
   {
     icon: "🎁",
     title: "Offers & promotions",
     desc: "Discount codes, bundle deals, flash sales — timed and segmented so they land with the right people, not everyone.",
+    example: "\"24 hours only: 20% off everything\" — sent to engaged subscribers, excluding recent buyers.",
   },
   {
     icon: "📰",
     title: "Informational newsletters",
     desc: "Company updates, educational content, behind-the-scenes — keeps your list engaged even in weeks you're not selling.",
+    example: "\"How we source every ingredient\" — a monthly editorial send, no discount attached.",
   },
   {
     icon: "🧩",
     title: "Any other newsletter type",
     desc: "Product launches, event invites, surveys, re-announcements — whatever your business needs to send, built into the same calendar.",
+    example: "\"You're invited: our first pop-up store\" — a one-off event announcement.",
   },
 ];
 
@@ -72,11 +81,13 @@ const CAPTURE_TOOLS = [
     icon: "⊞",
     title: "Subscribe popups",
     desc: "On-site popups that turn anonymous visitors into contacts you can actually reach again — timed, not annoying.",
+    example: "Appears after 15s on-site or on exit-intent — never on the first page load.",
   },
   {
     icon: "📋",
     title: "Data collection",
     desc: "Beyond just an email — birthday, preferences, purchase intent — whatever helps segment and personalize later.",
+    example: "A short 2-question form after signup: \"What are you shopping for?\"",
   },
 ];
 
@@ -103,13 +114,29 @@ const DASHBOARD_FEATURES = [
   },
 ];
 
-function TouchpointCard({ icon, title, desc }: { icon: string; title: string; desc: string }) {
+function TouchpointCard({ icon, title, desc, example }: { icon: string; title: string; desc: string; example?: string }) {
   return (
     <div className="uppr-card">
       <div className="uppr-card-inner" style={{ display: "flex", flexDirection: "column", gap: 10 }}>
         <span style={{ fontSize: 24 }}>{icon}</span>
         <h3 style={{ margin: 0, ...heading, fontWeight: 600, fontSize: 17 }}>{title}</h3>
         <p style={{ margin: 0, fontSize: 13.5, lineHeight: 1.55, color: "#A29DB8" }}>{desc}</p>
+        {example && (
+          <div
+            style={{
+              marginTop: 4,
+              padding: "9px 12px",
+              borderRadius: 10,
+              background: "rgba(168,85,247,.07)",
+              borderLeft: "2px solid rgba(168,85,247,.4)",
+            }}
+          >
+            <span style={{ fontSize: 10, color: "#8B84A0", ...mono, textTransform: "uppercase", letterSpacing: ".03em", display: "block", marginBottom: 3 }}>
+              Example
+            </span>
+            <span style={{ fontSize: 12.5, color: "#D6C6FA", lineHeight: 1.5 }}>{example}</span>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -167,10 +194,13 @@ export default function DemoPage() {
           <p style={{ fontSize: 12.5, fontWeight: 700, color: "#6E6980", ...mono, textTransform: "uppercase", letterSpacing: ".04em", marginBottom: 16 }}>
             Growing your list
           </p>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(min(240px,100%),1fr))", gap: 18, marginBottom: 44 }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(min(240px,100%),1fr))", gap: 18, marginBottom: 32 }}>
             {CAPTURE_TOOLS.map((t) => (
               <TouchpointCard key={t.title} {...t} />
             ))}
+          </div>
+          <div style={{ marginBottom: 48 }}>
+            <PopupPreviewDemo />
           </div>
 
           <div

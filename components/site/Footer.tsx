@@ -51,6 +51,8 @@ export default function Footer() {
                 <a href="/#lm-results" style={{ color: "inherit" }}>Results</a>
                 <a href="/#lm-problem" style={{ color: "inherit" }}>Why retention</a>
                 <Link href="/how-we-work" style={{ color: "inherit" }}>How We Work</Link>
+                <Link href="/demo" style={{ color: "inherit" }}>Demo</Link>
+                <Link href="/referral-program" style={{ color: "inherit" }}>Referral Program</Link>
                 <Link href="/contact" style={{ color: "inherit" }}>Contact</Link>
               </div>
             </div>
@@ -68,7 +70,6 @@ export default function Footer() {
                 <Link href="/send-time-optimizer" style={{ color: "inherit" }}>Send Time Optimizer</Link>
                 <Link href="/spam-word-checker" style={{ color: "inherit" }}>Spam Word Checker</Link>
                 <Link href="/unsubscribe-rate-calculator" style={{ color: "inherit" }}>Unsubscribe Rate Calculator</Link>
-                <Link href="/referral-program/" style={{ color: "inherit" }}>Referral Program</Link>
                 <Link href="/resources" style={{ color: "inherit" }}>Resources</Link>
               </div>
             </div>
