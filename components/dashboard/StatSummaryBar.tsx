@@ -10,13 +10,14 @@ type Stat = {
   value: string;
   isMoney?: boolean;
   delta: number | null; // procent, null = fără comparație disponibilă
-  sparkline: number[]; // valori brute, se normalizează intern
-  sparklineColor: string;
+  sparkline: number[]; // valori brute — sparkline-ul se colorează automat după trend
 };
 
-function Sparkline({ values, color }: { values: number[]; color: string }) {
+function Sparkline({ values }: { values: number[] }) {
   if (values.length < 2) return null;
   const max = Math.max(...values, 1);
+  const isIncreasing = values[values.length - 1] >= values[0];
+  const color = isIncreasing ? "#4ADE80" : "#FF6B9D";
   return (
     <div style={{ display: "flex", alignItems: "flex-end", gap: 2, height: 20, marginTop: 6 }}>
       {values.map((v, i) => {
@@ -103,7 +104,7 @@ export default function StatSummaryBar({ stats }: { stats: Stat[] }) {
               </span>
             )}
           </div>
-          <Sparkline values={s.sparkline} color={s.sparklineColor} />
+          <Sparkline values={s.sparkline} />
         </div>
       ))}
     </div>

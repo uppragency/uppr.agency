@@ -21,6 +21,11 @@ const COLUMNS = [
       "5 free tools: Subject Line Grader, Deliverability Checker, List Health Check, Send Time Optimizer, Spam Word Checker, Unsubscribe Rate Calculator",
       "One-click PDF export, audit logging, and admin portfolio overview",
       "18-point comparison page, industry pages, and platform migration guides",
+      "Month timeline, focus mode, and anonymized portfolio comparison on the client dashboard",
+      "Automatic milestone celebrations for collaboration anniversaries and revenue thresholds",
+      "Free-form report tags, suspicious-data warnings, and newsletter duplication in admin",
+      "Live infrastructure monitoring page (database size & table breakdown)",
+      "Auto-linked glossary terms inside blog articles",
     ],
   },
   {

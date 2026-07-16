@@ -6,6 +6,7 @@ import Footer from "@/components/site/Footer";
 import SiteBackground from "@/components/site/SiteBackground";
 import { createClient } from "@/lib/supabase/server";
 import { estimateReadingTime } from "@/lib/reading-time";
+import { linkifyGlossaryTerms } from "@/lib/glossary-linkify";
 
 export const revalidate = 60;
 
@@ -131,7 +132,7 @@ export default async function ArticlePage({
         <main
           className="post"
           style={{ maxWidth: 760, margin: "0 auto", padding: "0 clamp(18px,5vw,28px) 40px" }}
-          dangerouslySetInnerHTML={{ __html: article.content }}
+          dangerouslySetInnerHTML={{ __html: linkifyGlossaryTerms(article.content) }}
         />
 
         {related.length > 0 && (

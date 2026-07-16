@@ -14,6 +14,25 @@ const heading = { fontFamily: "var(--font-heading), sans-serif" } as const;
 const ENTRIES = [
   {
     date: "July 2026",
+    tag: "v2.8",
+    items: [
+      "Client dashboard: horizontal month timeline with one-click jump, and a \"focus mode\" to view a single month at a time",
+      "Client dashboard: anonymized comparison against the UPPR portfolio average (open rate & click rate)",
+      "Client dashboard: automatic milestone celebrations — collaboration anniversaries and cumulative revenue thresholds",
+      "Client dashboard: visual pulse when a client's margin target is reached",
+      "Client dashboard: illustrated empty state and skeleton loading screen",
+      "Client dashboard: referral program card linking to the client referral page",
+      "Free-form tags on monthly reports, alongside draft/published status",
+      "Trend charts (revenue & profit) now have a highlighted cursor line and glowing active point on hover",
+      "Sparklines in the summary bar now color themselves green or pink based on the underlying trend",
+      "Admin: suspicious-data warning before saving a report (e.g. transactions exceeding emails sent)",
+      "Admin: duplicate a single newsletter within a report, not just the whole report",
+      "Admin: new infrastructure page — live Supabase database size and table breakdown, with links to full Vercel/Supabase usage",
+      "Blog articles now auto-link the first mention of any glossary term to its definition",
+    ],
+  },
+  {
+    date: "July 2026",
     tag: "v2.4",
     items: [
       "New free tools: Send Time Optimizer, Spam Word Checker, Unsubscribe Rate Calculator",

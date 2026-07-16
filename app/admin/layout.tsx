@@ -40,6 +40,9 @@ export default async function AdminLayout({
           <Link href="/admin/clients" className="text-sm font-medium" style={{ color: "var(--uppr-fg)" }}>
             Clienți
           </Link>
+          <Link href="/admin/infra" className="text-sm font-medium" style={{ color: "var(--uppr-fg)" }}>
+            Infra
+          </Link>
         </nav>
         <div className="flex items-center gap-4">
           <span className="text-sm" style={{ color: "var(--uppr-muted)" }}>

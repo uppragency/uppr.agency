@@ -45,15 +45,24 @@ export default function ProfitTrendChart({
           <Tooltip
             contentStyle={{
               background: "#160F2E",
-              border: "1px solid rgba(168,85,247,.3)",
+              border: "1px solid rgba(168,85,247,.4)",
               borderRadius: 10,
               fontSize: 12.5,
+              boxShadow: "0 12px 30px rgba(0,0,0,.5)",
               ...mono,
             }}
-            labelStyle={{ color: "#F5F3FF" }}
+            labelStyle={{ color: "#F5F3FF", fontWeight: 700, marginBottom: 4 }}
+            cursor={{ stroke: "#4ADE80", strokeWidth: 1, strokeDasharray: "4 4" }}
             formatter={(value) => [`${Number(value).toLocaleString("ro-RO")} Lei`, "Profit"]}
           />
-          <Area type="monotone" dataKey="profit" stroke="#4ADE80" strokeWidth={2.5} fill="url(#profitGradient)" />
+          <Area
+            type="monotone"
+            dataKey="profit"
+            stroke="#4ADE80"
+            strokeWidth={2.5}
+            fill="url(#profitGradient)"
+            activeDot={{ r: 6, fill: "#4ADE80", stroke: "#160F2E", strokeWidth: 2 }}
+          />
         </AreaChart>
       </ResponsiveContainer>
     </div>

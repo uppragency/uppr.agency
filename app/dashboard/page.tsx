@@ -12,7 +12,14 @@ import SearchBox from "@/components/dashboard/SearchBox";
 import PresentationModeToggle from "@/components/dashboard/PresentationModeToggle";
 import StatSummaryBar, { type StatSummaryItem } from "@/components/dashboard/StatSummaryBar";
 import CampaignFunnel from "@/components/dashboard/CampaignFunnel";
+import MonthTimeline from "@/components/dashboard/MonthTimeline";
+import FocusModeToggle from "@/components/dashboard/FocusModeToggle";
+import EmptyReportsState from "@/components/dashboard/EmptyReportsState";
+import PortfolioComparisonCard from "@/components/dashboard/PortfolioComparisonCard";
+import ClientReferralCard from "@/components/dashboard/ClientReferralCard";
+import MilestoneBadge from "@/components/dashboard/MilestoneBadge";
 import { computeProfit, computeMargin } from "@/lib/profit";
+import { getPortfolioAverages } from "@/lib/portfolio-stats";
 
 function getGreeting(): string {
   const hour = new Date().getHours();
@@ -57,9 +64,9 @@ function StatRow({
 export default async function DashboardPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string }>;
+  searchParams: Promise<{ q?: string; focus?: string }>;
 }) {
-  const { q } = await searchParams;
+  const { q, focus } = await searchParams;
   const searchTerm = (q ?? "").trim().toLowerCase();
 
   const supabase = await createClient();
@@ -67,14 +74,18 @@ export default async function DashboardPage({
 
   let setupCost = 0;
   let clientName = "";
+  let targetMarginPct: number | null = null;
+  let clientCreatedAt: string | null = null;
   if (profile?.clientId) {
     const { data: clientRow } = await supabase
       .from("clients")
-      .select("setup_cost, name")
+      .select("setup_cost, name, target_margin_pct, created_at")
       .eq("id", profile.clientId)
       .single();
     setupCost = clientRow?.setup_cost ?? 0;
     clientName = clientRow?.name ?? "";
+    targetMarginPct = clientRow?.target_margin_pct ?? null;
+    clientCreatedAt = clientRow?.created_at ?? null;
   }
 
   // RLS ("Clients view own published reports") filtrează automat după
@@ -82,7 +93,7 @@ export default async function DashboardPage({
   const { data: reports } = await supabase
     .from("campaign_reports")
     .select(
-      "id, client_id, month, year, ecom_sent_emails, ecom_clicks, ecom_conversion_rate, ecom_transactions, ecom_revenue, cost_themarketer, cost_invoice, recommendation_1, recommendation_2, recommendation_3, recommendation_4, status, created_at, updated_at, newsletters(*)"
+      "id, client_id, month, year, ecom_sent_emails, ecom_clicks, ecom_conversion_rate, ecom_transactions, ecom_revenue, cost_themarketer, cost_invoice, tags, recommendation_1, recommendation_2, recommendation_3, recommendation_4, status, created_at, updated_at, newsletters(*)"
     )
     .order("year", { ascending: false })
     .order("month", { ascending: false });
@@ -203,7 +214,6 @@ export default async function DashboardPage({
         isMoney: true,
         delta: pctDelta(latestTotalRevenue, prevTotalRevenue),
         sparkline: revenueSparkline,
-        sparklineColor: "#4ADE80",
       },
       {
         key: "profit",
@@ -215,7 +225,6 @@ export default async function DashboardPage({
         isMoney: true,
         delta: pctDelta(latestProfit, prevProfit),
         sparkline: profitSparkline,
-        sparklineColor: "#C084FC",
       },
       {
         key: "margin",
@@ -227,7 +236,6 @@ export default async function DashboardPage({
         isMoney: true,
         delta: null,
         sparkline: profitSparkline,
-        sparklineColor: "#FDBA74",
       },
       {
         key: "newsletters",
@@ -238,14 +246,13 @@ export default async function DashboardPage({
         value: String(latestNewsletterCount),
         delta: pctDelta(latestNewsletterCount, prevNewsletterCount),
         sparkline: newsletterCountSparkline,
-        sparklineColor: "#60A5FA",
       },
     ];
   }
 
   // filtrare după search: ascund newsletter-ele care nu se potrivesc, și
   // lunile care rămân fără niciun newsletter potrivit (doar când se caută ceva)
-  const visibleReports = (reports ?? [])
+  let visibleReports = (reports ?? [])
     .map((r) => {
       if (!searchTerm) return r;
       const filteredNewsletters = (r.newsletters ?? []).filter((n) =>
@@ -254,6 +261,66 @@ export default async function DashboardPage({
       return { ...r, newsletters: filteredNewsletters };
     })
     .filter((r) => !searchTerm || (r.newsletters ?? []).length > 0);
+
+  // mod focus — arată o singură lună, dacă e selectată
+  if (focus) {
+    visibleReports = visibleReports.filter((r) => r.id === focus);
+  }
+
+  const monthOptions = (reports ?? []).map((r) => ({
+    id: r.id,
+    label: `${LUNI_SCURT[r.month - 1]} ${r.year}`,
+  }));
+
+  // milestone-uri celebrate automat: X luni de colaborare + praguri de
+  // revenue cumulat, calculate din date reale, atașate lunii unde apar
+  const MILESTONE_MONTHS = [6, 12, 18, 24, 36, 48];
+  const REVENUE_MILESTONES = [50000, 100000, 250000, 500000, 1000000];
+  const milestonesByReportId = new Map<string, string[]>();
+
+  if (clientCreatedAt && chronological.length) {
+    const startDate = new Date(clientCreatedAt);
+    for (const r of chronological) {
+      const reportDate = new Date(r.year, r.month - 1, 1);
+      const monthsSinceStart =
+        (reportDate.getFullYear() - startDate.getFullYear()) * 12 + (reportDate.getMonth() - startDate.getMonth());
+      if (MILESTONE_MONTHS.includes(monthsSinceStart)) {
+        const list = milestonesByReportId.get(r.id) ?? [];
+        list.push(`${monthsSinceStart} luni de colaborare cu UPPR! 🎉`);
+        milestonesByReportId.set(r.id, list);
+      }
+    }
+  }
+
+  let cumulativeRevenueForMilestones = 0;
+  let nextRevenueMilestoneIdx = 0;
+  for (const r of chronological) {
+    const cr = (r.newsletters ?? []).reduce((s, n) => s + Number(n.revenue), 0);
+    cumulativeRevenueForMilestones += cr + Number(r.ecom_revenue);
+    while (
+      nextRevenueMilestoneIdx < REVENUE_MILESTONES.length &&
+      cumulativeRevenueForMilestones >= REVENUE_MILESTONES[nextRevenueMilestoneIdx]
+    ) {
+      const threshold = REVENUE_MILESTONES[nextRevenueMilestoneIdx];
+      const list = milestonesByReportId.get(r.id) ?? [];
+      list.push(`Ați depășit ${threshold.toLocaleString("ro-RO")} Lei revenue cumulat!`);
+      milestonesByReportId.set(r.id, list);
+      nextRevenueMilestoneIdx++;
+    }
+  }
+
+  // comparație anonimizată vs. media portofoliului
+  const portfolioAverages = !searchTerm && !focus ? await getPortfolioAverages() : null;
+  const latestReportForComparison = reports?.[0];
+  const latestNewslettersForComparison = latestReportForComparison?.newsletters ?? [];
+  const yourAvgOpenRate =
+    latestNewslettersForComparison.length > 0
+      ? latestNewslettersForComparison.reduce((s, n) => s + Number(n.unique_open_rate), 0) / latestNewslettersForComparison.length
+      : null;
+  const yourAvgClickRate =
+    latestNewslettersForComparison.length > 0
+      ? latestNewslettersForComparison.reduce((s, n) => s + Number(n.unique_click_rate), 0) / latestNewslettersForComparison.length
+      : null;
 
   return (
     <div className="space-y-8">
@@ -336,23 +403,23 @@ export default async function DashboardPage({
         </div>
       )}
 
-      {!reports?.length && (
-        <div className="uppr-card">
-          <div className="uppr-card-inner text-center py-12">
-            <p style={{ color: "var(--uppr-muted)" }}>Niciun raport disponibil momentan.</p>
-          </div>
-        </div>
-      )}
+      {!reports?.length && <EmptyReportsState />}
 
       {!!reports?.length && (
-        <div className="flex items-center gap-3 flex-wrap">
-          <SearchBox />
-          {searchTerm && (
-            <span className="text-sm" style={{ color: "var(--uppr-muted)" }}>
-              {visibleReports.length} {visibleReports.length === 1 ? "lună găsită" : "luni găsite"} pentru &quot;{searchTerm}&quot;
-            </span>
-          )}
-        </div>
+        <>
+          <MonthTimeline months={monthOptions} />
+          <div className="flex items-center gap-3 flex-wrap justify-between">
+            <div className="flex items-center gap-3 flex-wrap">
+              <SearchBox />
+              {searchTerm && (
+                <span className="text-sm" style={{ color: "var(--uppr-muted)" }}>
+                  {visibleReports.length} {visibleReports.length === 1 ? "lună găsită" : "luni găsite"} pentru &quot;{searchTerm}&quot;
+                </span>
+              )}
+            </div>
+            <FocusModeToggle months={monthOptions} />
+          </div>
+        </>
       )}
 
       {!searchTerm && trendData.length > 1 && <RevenueTrendSection data={trendData} />}
@@ -382,6 +449,15 @@ export default async function DashboardPage({
             </div>
           </div>
         </div>
+      )}
+
+      {!searchTerm && !focus && portfolioAverages && yourAvgOpenRate !== null && yourAvgClickRate !== null && (
+        <PortfolioComparisonCard
+          yourOpenRate={yourAvgOpenRate}
+          yourClickRate={yourAvgClickRate}
+          avgOpenRate={portfolioAverages.avgOpenRate}
+          avgClickRate={portfolioAverages.avgClickRate}
+        />
       )}
 
       {visibleReports.map((report) => {
@@ -426,18 +502,29 @@ export default async function DashboardPage({
         const isFirstProfitableMonth = report.id === firstPositiveProfitMonthId;
 
         return (
-          <section key={report.id} className="uppr-card">
+          <section key={report.id} id={`month-${report.id}`} className="uppr-card" style={{ scrollMarginTop: 100 }}>
             <div className="uppr-card-inner space-y-6">
               <div className="flex items-center justify-between flex-wrap gap-3">
-                <h2
-                  style={{
-                    fontFamily: "var(--font-heading), sans-serif",
-                    fontWeight: 600,
-                    fontSize: "22px",
-                  }}
-                >
-                  {LUNI[report.month - 1]} {report.year}
-                </h2>
+                <div className="flex items-center gap-3 flex-wrap">
+                  <h2
+                    style={{
+                      fontFamily: "var(--font-heading), sans-serif",
+                      fontWeight: 600,
+                      fontSize: "22px",
+                    }}
+                  >
+                    {LUNI[report.month - 1]} {report.year}
+                  </h2>
+                  {report.tags?.map((tag) => (
+                    <span
+                      key={tag}
+                      className="uppr-badge"
+                      style={{ color: "#C4BCDC", background: "rgba(255,255,255,.06)", fontSize: 11 }}
+                    >
+                      {tag}
+                    </span>
+                  ))}
+                </div>
                 <Link
                   href={`/report/${report.id}`}
                   target="_blank"
@@ -447,6 +534,10 @@ export default async function DashboardPage({
                   Descarcă PDF
                 </Link>
               </div>
+
+              {(milestonesByReportId.get(report.id) ?? []).map((m) => (
+                <MilestoneBadge key={m} text={m} />
+              ))}
 
               {isFirstProfitableMonth && (
                 <div
@@ -599,6 +690,27 @@ export default async function DashboardPage({
                     isMoney
                   />
                   <StatRow label="Marjă" value={margin !== null ? `${margin.toFixed(1)}%` : "—"} isMoney />
+                  {targetMarginPct !== null && margin !== null && margin >= targetMarginPct && (
+                    <div
+                      className="uppr-target-reached"
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 8,
+                        marginTop: 10,
+                        padding: "8px 14px",
+                        borderRadius: 999,
+                        background: "rgba(74,222,128,.1)",
+                        border: "1px solid rgba(74,222,128,.3)",
+                        fontSize: 12.5,
+                        fontWeight: 600,
+                        color: "#4ADE80",
+                        width: "fit-content",
+                      }}
+                    >
+                      🎯 Target de marjă ({targetMarginPct}%) atins!
+                    </div>
+                  )}
                 </dl>
               </div>
 
@@ -633,6 +745,8 @@ export default async function DashboardPage({
           </section>
         );
       })}
+
+      {!searchTerm && !focus && <ClientReferralCard />}
     </div>
   );
 }

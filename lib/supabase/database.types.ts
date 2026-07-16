@@ -108,6 +108,7 @@ export interface Database {
           ecom_revenue: number;
           cost_themarketer: number;
           cost_invoice: number;
+          tags: string[];
           recommendation_1: string | null;
           recommendation_2: string | null;
           recommendation_3: string | null;
@@ -129,6 +130,7 @@ export interface Database {
           ecom_revenue: number;
           cost_themarketer?: number;
           cost_invoice?: number;
+          tags?: string[];
           recommendation_1?: string | null;
           recommendation_2?: string | null;
           recommendation_3?: string | null;
@@ -255,7 +257,17 @@ export interface Database {
       };
     };
     Views: Record<string, never>;
-    Functions: Record<string, never>;
+    Functions: {
+      get_db_stats: {
+        Args: Record<PropertyKey, never>;
+        Returns: {
+          table_name: string;
+          row_count: number;
+          total_size: string;
+          total_size_bytes: number;
+        }[];
+      };
+    };
     Enums: {
       user_role: UserRole;
       article_status: ArticleStatus;

@@ -71,6 +71,7 @@ export default function ReportForm({
   const supabase = createClient();
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [tagsInput, setTagsInput] = useState(report?.tags?.join(", ") ?? "");
 
   const [form, setForm] = useState(
     report
@@ -164,6 +165,16 @@ export default function ReportForm({
     setNewsletterDrafts((drafts) => [...drafts, { ...emptyNewsletter }]);
   }
 
+  function duplicateNewsletter(index: number) {
+    setNewsletterDrafts((drafts) => {
+      const source = drafts[index];
+      const copy: NewsletterDraft = { ...source, title: `${source.title} (copie)` };
+      const next = [...drafts];
+      next.splice(index + 1, 0, copy);
+      return next;
+    });
+  }
+
   function removeNewsletter(index: number) {
     if (!window.confirm("Ștergi acest newsletter din raport?")) return;
     setNewsletterDrafts((drafts) => drafts.filter((_, i) => i !== index));
@@ -213,11 +224,43 @@ export default function ReportForm({
     });
   }
 
+  function findSuspiciousWarnings(): string[] {
+    const warnings: string[] = [];
+    newsletterDrafts.forEach((n, i) => {
+      const label = n.title.trim() || `Newsletter #${i + 1}`;
+      if (n.transactions > n.sent_emails && n.sent_emails > 0) {
+        warnings.push(`"${label}": tranzacții (${n.transactions}) mai mari decât emailuri trimise (${n.sent_emails})`);
+      }
+      if (n.unique_open_rate > 100) {
+        warnings.push(`"${label}": open rate peste 100% (${n.unique_open_rate}%)`);
+      }
+      if (n.unique_click_rate > 100) {
+        warnings.push(`"${label}": click rate peste 100% (${n.unique_click_rate}%)`);
+      }
+      if (n.unique_click_rate > n.unique_open_rate && n.unique_open_rate > 0) {
+        warnings.push(`"${label}": click rate (${n.unique_click_rate}%) mai mare decât open rate (${n.unique_open_rate}%)`);
+      }
+    });
+    if (form.ecom_conversion_rate > 100) {
+      warnings.push(`Ecommerce: conversion rate peste 100% (${form.ecom_conversion_rate}%)`);
+    }
+    return warnings;
+  }
+
   async function handleSave(status: "draft" | "published") {
+    const warnings = findSuspiciousWarnings();
+    if (warnings.length > 0) {
+      const proceed = window.confirm(
+        `Câteva valori par neobișnuite:\n\n${warnings.join("\n")}\n\nSalvezi oricum?`
+      );
+      if (!proceed) return;
+    }
+
     setSaving(true);
     setError(null);
 
-    const payload = { ...form, status };
+    const parsedTags = tagsInput.split(",").map((t) => t.trim()).filter(Boolean);
+    const payload = { ...form, status, tags: parsedTags };
 
     const reportQuery = report
       ? supabase.from("campaign_reports").update(payload).eq("id", report.id).select().single()
@@ -337,6 +380,15 @@ export default function ReportForm({
             </div>
             {ecomNumberInput("An", "year")}
           </div>
+          <div className="space-y-1.5" style={{ marginTop: 16 }}>
+            <label className="uppr-label block">Etichete (separate prin virgulă)</label>
+            <input
+              className="uppr-input"
+              placeholder="ex: de revizuit, cifre neclare, campanie sezonieră"
+              value={tagsInput}
+              onChange={(e) => setTagsInput(e.target.value)}
+            />
+          </div>
         </div>
       </div>
 
@@ -379,6 +431,13 @@ export default function ReportForm({
                   onChange={(e) => updateNewsletter(i, "title", e.target.value)}
                   style={{ flex: 1 }}
                 />
+                <button
+                  type="button"
+                  onClick={() => duplicateNewsletter(i)}
+                  style={{ color: "var(--uppr-violet-3)", fontSize: 13, fontWeight: 600, flex: "none" }}
+                >
+                  Duplică
+                </button>
                 {newsletterDrafts.length > 1 && (
                   <button
                     type="button"

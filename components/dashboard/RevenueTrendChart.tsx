@@ -37,15 +37,33 @@ export default function RevenueTrendChart({
           <Tooltip
             contentStyle={{
               background: "#160F2E",
-              border: "1px solid rgba(168,85,247,.3)",
+              border: "1px solid rgba(168,85,247,.4)",
               borderRadius: 10,
               fontSize: 12.5,
+              boxShadow: "0 12px 30px rgba(0,0,0,.5)",
               ...mono,
             }}
-            labelStyle={{ color: "#F5F3FF" }}
+            labelStyle={{ color: "#F5F3FF", fontWeight: 700, marginBottom: 4 }}
+            cursor={{ stroke: "#A855F7", strokeWidth: 1, strokeDasharray: "4 4" }}
           />
-          <Line type="monotone" dataKey="campaigns" name="Campanii (Lei)" stroke="#A855F7" strokeWidth={2.5} dot={{ r: 3, fill: "#A855F7" }} />
-          <Line type="monotone" dataKey="ecommerce" name="Ecommerce (Lei)" stroke="#4ADE80" strokeWidth={2.5} dot={{ r: 3, fill: "#4ADE80" }} />
+          <Line
+            type="monotone"
+            dataKey="campaigns"
+            name="Campanii (Lei)"
+            stroke="#A855F7"
+            strokeWidth={2.5}
+            dot={{ r: 3, fill: "#A855F7" }}
+            activeDot={{ r: 6, fill: "#C084FC", stroke: "#160F2E", strokeWidth: 2 }}
+          />
+          <Line
+            type="monotone"
+            dataKey="ecommerce"
+            name="Ecommerce (Lei)"
+            stroke="#4ADE80"
+            strokeWidth={2.5}
+            dot={{ r: 3, fill: "#4ADE80" }}
+            activeDot={{ r: 6, fill: "#4ADE80", stroke: "#160F2E", strokeWidth: 2 }}
+          />
         </LineChart>
       </ResponsiveContainer>
     </div>

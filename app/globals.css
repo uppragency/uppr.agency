@@ -390,3 +390,30 @@ a:hover {
 .presentation-mode .uppr-money:hover {
   filter: none;
 }
+
+/* Milestone celebrat automat — puls discret */
+@keyframes milestonePulse {
+  0%, 100% { box-shadow: 0 0 0 rgba(251,191,36,0); }
+  50% { box-shadow: 0 0 24px rgba(251,191,36,.25); }
+}
+
+/* Target de marjă atins — puls verde scurt */
+@keyframes targetReachedPulse {
+  0% { box-shadow: 0 0 0 rgba(74,222,128,0); }
+  30% { box-shadow: 0 0 28px rgba(74,222,128,.5); }
+  100% { box-shadow: 0 0 0 rgba(74,222,128,0); }
+}
+.uppr-target-reached {
+  animation: targetReachedPulse 1.8s ease-out 1;
+}
+
+/* Link automat către glosar din articole */
+.post .glossary-link {
+  color: #C084FC;
+  text-decoration: underline;
+  text-decoration-style: dotted;
+  text-underline-offset: 3px;
+}
+.post .glossary-link:hover {
+  color: #E9D5FF;
+}
