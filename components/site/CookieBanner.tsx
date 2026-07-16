@@ -5,10 +5,12 @@ import { usePathname } from "next/navigation";
 import Link from "next/link";
 
 const STORAGE_KEY = "uppr-cookie-consent";
+const MOBILE_BREAKPOINT = 640;
 
 export default function CookieBanner() {
   const pathname = usePathname();
   const [visible, setVisible] = useState(false);
+  const [isMobile, setIsMobile] = useState<boolean | null>(null);
 
   useEffect(() => {
     try {
@@ -17,6 +19,13 @@ export default function CookieBanner() {
     } catch {
       // localStorage indisponibil — nu blocăm nimic, doar nu afișăm bannerul
     }
+
+    function updateIsMobile() {
+      setIsMobile(window.innerWidth < MOBILE_BREAKPOINT);
+    }
+    updateIsMobile();
+    window.addEventListener("resize", updateIsMobile);
+    return () => window.removeEventListener("resize", updateIsMobile);
   }, []);
 
   function accept() {
@@ -32,51 +41,13 @@ export default function CookieBanner() {
   const isPrivateRoute =
     pathname.startsWith("/admin") || pathname.startsWith("/dashboard") || pathname.startsWith("/login");
 
-  if (!visible || isPrivateRoute) return null;
+  // isMobile === null înseamnă că încă nu s-a determinat lățimea ecranului
+  // (prima randare, pe server) — nu afișăm nimic până nu știm sigur
+  if (!visible || isPrivateRoute || isMobile === null) return null;
 
-  return (
-    <>
-      {/* DESKTOP — card colț stânga-jos */}
+  if (isMobile) {
+    return (
       <div
-        className="hidden sm:block"
-        style={{
-          position: "fixed",
-          bottom: 20,
-          left: 20,
-          zIndex: 200,
-          width: 300,
-          borderRadius: 16,
-          padding: 1,
-          background: "linear-gradient(150deg,rgba(168,85,247,.5),rgba(255,255,255,.05))",
-          boxShadow: "0 20px 50px rgba(0,0,0,.5)",
-        }}
-      >
-        <div
-          style={{
-            background: "linear-gradient(165deg,#160F2E,#0B0817)",
-            borderRadius: 15,
-            padding: "16px 18px",
-          }}
-        >
-          <p style={{ margin: "0 0 12px", fontSize: 12.5, lineHeight: 1.55, color: "#C4BCDC" }}>
-            Folosim cookies pentru analiză și funcționare site.{" "}
-            <Link href="/privacy" style={{ color: "#C084FC", textDecoration: "underline" }}>
-              Detalii
-            </Link>
-          </p>
-          <button
-            onClick={accept}
-            className="uppr-btn-primary"
-            style={{ width: "100%", padding: "9px 14px", fontSize: 13, minHeight: "auto" }}
-          >
-            Accept
-          </button>
-        </div>
-      </div>
-
-      {/* MOBIL — bară subțire, jos, o singură linie */}
-      <div
-        className="sm:hidden"
         style={{
           position: "fixed",
           bottom: 0,
@@ -107,6 +78,44 @@ export default function CookieBanner() {
           Accept
         </button>
       </div>
-    </>
+    );
+  }
+
+  return (
+    <div
+      style={{
+        position: "fixed",
+        bottom: 20,
+        left: 20,
+        zIndex: 200,
+        width: 300,
+        borderRadius: 16,
+        padding: 1,
+        background: "linear-gradient(150deg,rgba(168,85,247,.5),rgba(255,255,255,.05))",
+        boxShadow: "0 20px 50px rgba(0,0,0,.5)",
+      }}
+    >
+      <div
+        style={{
+          background: "linear-gradient(165deg,#160F2E,#0B0817)",
+          borderRadius: 15,
+          padding: "16px 18px",
+        }}
+      >
+        <p style={{ margin: "0 0 12px", fontSize: 12.5, lineHeight: 1.55, color: "#C4BCDC" }}>
+          Folosim cookies pentru analiză și funcționare site.{" "}
+          <Link href="/privacy" style={{ color: "#C084FC", textDecoration: "underline" }}>
+            Detalii
+          </Link>
+        </p>
+        <button
+          onClick={accept}
+          className="uppr-btn-primary"
+          style={{ width: "100%", padding: "9px 14px", fontSize: 13, minHeight: "auto" }}
+        >
+          Accept
+        </button>
+      </div>
+    </div>
   );
 }
