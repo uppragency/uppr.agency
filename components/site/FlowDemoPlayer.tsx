@@ -3,65 +3,41 @@
 import { useState, useEffect } from "react";
 
 const mono = { fontFamily: "var(--font-mono-label), monospace" } as const;
-const heading = { fontFamily: "var(--font-heading), sans-serif" } as const;
 
-const STEPS = [
-  {
-    day: "Day 0",
-    label: "Welcome",
-    icon: "👋",
-    subject: "Welcome to the list 🎉",
-    preview: "Thanks for joining — here's your 15% off code, ready whenever you are.",
-  },
-  {
-    day: "Day 2",
-    label: "Brand story",
-    icon: "📖",
-    subject: "Why we started this",
-    preview: "A quick look at what makes the product different, no hard sell yet.",
-  },
-  {
-    day: "Day 4",
-    label: "Social proof",
-    icon: "⭐",
-    subject: "1,200+ five-star reviews",
-    preview: "Don't just take our word for it — here's what real customers say.",
-  },
-  {
-    day: "Day 7",
-    label: "Bestsellers",
-    icon: "🛍",
-    subject: "The 5 most-loved picks",
-    preview: "Here's what everyone's actually buying first, curated for you.",
-  },
-  {
-    day: "Day 10–14",
-    label: "Last call",
-    icon: "⏰",
-    subject: "Your code expires tonight",
-    preview: "Last chance to use your welcome discount before it's gone.",
-  },
-];
+export type FlowStep = {
+  day: string;
+  label: string;
+  icon: string;
+  subject: string;
+  preview: string;
+};
 
 const STEP_DURATION = 2600;
 
-export default function WelcomeFlowDemo() {
+export default function FlowDemoPlayer({
+  steps,
+  flowName,
+}: {
+  steps: FlowStep[];
+  flowName: string;
+}) {
   const [active, setActive] = useState(0);
 
   useEffect(() => {
+    setActive(0);
     const interval = setInterval(() => {
-      setActive((a) => (a + 1) % STEPS.length);
+      setActive((a) => (a + 1) % steps.length);
     }, STEP_DURATION);
     return () => clearInterval(interval);
-  }, []);
+  }, [steps]);
 
-  const step = STEPS[active];
+  const step = steps[active];
 
   return (
     <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(min(360px,100%),1fr))", gap: "clamp(28px,5vw,48px)", alignItems: "center" }}>
       {/* TIMELINE */}
       <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-        {STEPS.map((s, i) => {
+        {steps.map((s, i) => {
           const isActive = i === active;
           const isPast = i < active;
           return (
@@ -89,7 +65,7 @@ export default function WelcomeFlowDemo() {
                 >
                   {s.icon}
                 </div>
-                {i < STEPS.length - 1 && (
+                {i < steps.length - 1 && (
                   <div
                     style={{
                       width: 2,
@@ -100,7 +76,7 @@ export default function WelcomeFlowDemo() {
                   />
                 )}
               </div>
-              <div style={{ paddingTop: 6, paddingBottom: i < STEPS.length - 1 ? 22 : 0 }}>
+              <div style={{ paddingTop: 6, paddingBottom: i < steps.length - 1 ? 22 : 0 }}>
                 <div style={{ fontSize: 11, ...mono, color: isActive ? "#C084FC" : "#6E6980", fontWeight: 700, letterSpacing: ".04em", textTransform: "uppercase", transition: "color .4s ease" }}>
                   {s.day}
                 </div>
@@ -125,7 +101,7 @@ export default function WelcomeFlowDemo() {
         <div style={{ background: "linear-gradient(165deg,#160F2E,#0C0820)", borderRadius: 23, padding: "clamp(20px,3vw,28px)", minHeight: 260 }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 18 }}>
             <span style={{ fontWeight: 700, fontSize: 11, color: "#B8B2CC", letterSpacing: ".06em", textTransform: "uppercase", ...mono }}>
-              WELCOME_SERIES.flow
+              {flowName}.flow
             </span>
             <span style={{ display: "inline-flex", alignItems: "center", gap: 6, fontSize: 11, fontWeight: 600, color: "#4ADE80", ...mono }}>
               <span style={{ width: 7, height: 7, borderRadius: 999, background: "#4ADE80", animation: "pulseDot 1.8s infinite", boxShadow: "0 0 8px #4ADE80" }} />
@@ -157,7 +133,7 @@ export default function WelcomeFlowDemo() {
           </div>
 
           <div style={{ display: "flex", gap: 5, marginTop: 18, justifyContent: "center" }}>
-            {STEPS.map((_, i) => (
+            {steps.map((_, i) => (
               <div
                 key={i}
                 style={{
