@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Script from "next/script";
 import { Analytics } from "@vercel/analytics/next";
 import { Space_Grotesk, Space_Mono, Instrument_Sans } from "next/font/google";
+import CookieBanner from "@/components/site/CookieBanner";
 import "./globals.css";
 
 const spaceGrotesk = Space_Grotesk({
@@ -52,6 +53,7 @@ export default function RootLayout({
           `}
         </Script>
         <Analytics />
+        <CookieBanner />
       </body>
     </html>
   );
