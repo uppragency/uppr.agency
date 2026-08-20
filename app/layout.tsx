@@ -65,6 +65,25 @@ export default function RootLayout({
       lang="ro"
       className={`${spaceGrotesk.variable} ${spaceMono.variable} ${instrumentSans.variable} h-full antialiased`}
     >
+      <head>
+        {/* Google tag (gtag.js) - Imediat dupa <head> */}
+        <Script
+          strategy="afterInteractive"
+          src="https://www.googletagmanager.com/gtag/js?id=G-BJF4JJ31RD"
+        />
+        <Script
+          id="google-analytics"
+          strategy="afterInteractive"
+          dangerouslySetInnerHTML={{
+            __html: `
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+              gtag('config', 'G-BJF4JJ31RD');
+            `,
+          }}
+        />
+      </head>
       <body className="min-h-full flex flex-col">
         <Script
           id="organization-jsonld"
