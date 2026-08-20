@@ -24,8 +24,38 @@ const instrumentSans = Instrument_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "UPPR Agency — Email & SMS Retention Marketing for SMBs",
-  description: "Panouri administrare UPPR Agency",
+  metadataBase: new URL("https://www.uppr.agency"),
+  title: {
+    default: "UPPR Agency — Email Marketing, Automations & Retention",
+    template: "%s | UPPR Agency",
+  },
+  description:
+    "Email & SMS marketing built on TheMarketer — campaigns, automations, and retention working together to turn your list into predictable revenue.",
+  alternates: {
+    canonical: "/",
+  },
+  verification: {
+    google: "bQERUOzAwc1hfHuXXW7caN0XT4ikQHO138jJ77Azg8A",
+  },
+};
+
+const organizationJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "ProfessionalService",
+  name: "UPPR Agency",
+  legalName: "UPPRMARKETING SRL",
+  url: "https://www.uppr.agency",
+  logo: "https://www.uppr.agency/logo.png",
+  image: "https://www.uppr.agency/opengraph.png",
+  email: "office@uppr.agency",
+  telephone: "+40790682363",
+  address: {
+    "@type": "PostalAddress",
+    addressCountry: "RO",
+  },
+  areaServed: "RO",
+  description:
+    "Email & SMS marketing agency — campaign management, automations, and retention strategy, built on TheMarketer.",
 };
 
 export default function RootLayout({
@@ -39,6 +69,11 @@ export default function RootLayout({
       className={`${spaceGrotesk.variable} ${spaceMono.variable} ${instrumentSans.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
+        <Script
+          id="organization-jsonld"
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
+        />
         {children}
         <Script id="themarketer-tracking" strategy="beforeInteractive">
           {`

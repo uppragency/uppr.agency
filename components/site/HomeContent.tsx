@@ -148,14 +148,13 @@ function Hero({ goCal, goResults }: { goCal: () => void; goResults: () => void }
               maxWidth: 520,
             }}
           >
-            Full-service email &amp; SMS retention, engineered and managed on{" "}
+            Full-service email &amp; SMS marketing — campaigns, automations, and retention, engineered and managed on{" "}
             <strong style={{ color: "#F5F3FF", fontWeight: 600 }}>
               <a href={AFFILIATE_URL} target="_blank" style={{ color: "inherit" }}>
                 TheMarketer
               </a>
             </strong>{" "}
-            — built for small and mid-sized businesses that need lost leads and dormant customers to stop
-            bleeding revenue on autopilot.
+            — so lost leads and dormant customers stop bleeding revenue on autopilot.
           </p>
           <div style={{ display: "flex", alignItems: "center", gap: 14, flexWrap: "wrap" }}>
             <button onClick={goCal} className="uppr-btn-primary" style={{ flex: "1 1 auto", minWidth: 240, padding: "17px 26px", fontSize: 16 }}>
@@ -485,7 +484,7 @@ function ComparisonTable() {
       <Reveal style={{ textAlign: "center", maxWidth: 720, marginLeft: "auto", marginRight: "auto", marginBottom: 44 }}>
         <SectionLabel>HOW THE OPTIONS STACK UP</SectionLabel>
         <h2 style={{ margin: "16px 0 16px", ...heading, fontWeight: 700, fontSize: "clamp(28px,4.6vw,46px)", lineHeight: 1.1, letterSpacing: "-.025em" }}>
-          Three ways to run retention. One is <span className="grad-text">built for SMBs</span>.
+          Three ways to run retention. One is <span className="grad-text">built to run itself</span>.
         </h2>
         <p style={{ margin: 0, fontSize: "clamp(15px,2vw,17px)", lineHeight: 1.55, color: "#A29DB8" }}>
           Same goal, different tradeoffs. Here&apos;s what each route actually costs you in time, attention, and ceiling.
