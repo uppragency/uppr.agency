@@ -9,6 +9,6 @@ export default function robots(): MetadataRoute.Robots {
         disallow: ["/admin", "/dashboard", "/login", "/report", "/demo", "/thank-you"],
       },
     ],
-    sitemap: ["https://uppr.agency/sitemap.xml", "https://uppr.agency/sitemap-images.xml"],
+    sitemap: ["https://www.uppr.agency/sitemap.xml", "https://www.uppr.agency/sitemap-images.xml"],
   };
 }

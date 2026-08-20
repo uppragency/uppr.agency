@@ -8,7 +8,7 @@ export async function GET() {
     .eq("status", "published")
     .not("og_image", "is", null);
 
-  const base = "https://uppr.agency";
+  const base = "https://www.uppr.agency";
 
   const urls = (articles ?? [])
     .map(

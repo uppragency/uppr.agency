@@ -77,7 +77,7 @@ export async function POST(request: Request) {
       subject: `Raportul tău pentru ${monthLabel} e gata`,
       html: `<p>Bună${clientName ? `, ${clientName}` : ""},</p>
              <p>Raportul de campanii pentru <strong>${monthLabel}</strong> a fost publicat și e disponibil în dashboard.</p>
-             <p><a href="https://uppr.agency/dashboard">Vezi raportul →</a></p>
+             <p><a href="https://www.uppr.agency/dashboard">Vezi raportul →</a></p>
              <p style="color:#888;font-size:12px">UPPR Agency</p>`,
     }),
   });

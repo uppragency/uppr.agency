@@ -82,9 +82,9 @@ export default async function ArticlePage({
     publisher: {
       "@type": "Organization",
       name: "UPPR Agency",
-      logo: { "@type": "ImageObject", url: "https://uppr.agency/logo.png" },
+      logo: { "@type": "ImageObject", url: "https://www.uppr.agency/logo.png" },
     },
-    mainEntityOfPage: { "@type": "WebPage", "@id": `https://uppr.agency/blog/${article.slug}` },
+    mainEntityOfPage: { "@type": "WebPage", "@id": `https://www.uppr.agency/blog/${article.slug}` },
   };
 
   return (

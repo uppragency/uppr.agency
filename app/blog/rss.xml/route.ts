@@ -18,7 +18,7 @@ export async function GET() {
     .order("published_at", { ascending: false })
     .limit(50);
 
-  const base = "https://uppr.agency";
+  const base = "https://www.uppr.agency";
   const items = (articles ?? [])
     .map(
       (a) => `
