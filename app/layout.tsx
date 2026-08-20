@@ -25,10 +25,7 @@ const instrumentSans = Instrument_Sans({
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.uppr.agency"),
-  title: {
-    default: "UPPR Agency — Email Marketing, Automations & Retention",
-    template: "%s | UPPR Agency",
-  },
+  title: "UPPR Agency — Email Marketing, Automations & Retention",
   description:
     "Email & SMS marketing built on TheMarketer — campaigns, automations, and retention working together to turn your list into predictable revenue.",
   alternates: {
