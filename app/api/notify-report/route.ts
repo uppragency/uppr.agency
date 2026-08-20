@@ -21,7 +21,13 @@ export async function POST(request: Request) {
   if (!user) {
     return NextResponse.json({ error: "Neautentificat" }, { status: 401 });
   }
-  const { data: profile } = await supabase.from("profiles").select("role").eq("id", user.id).single();
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("role")
+    .eq("id", user.id)
+    .single();
+
   if (profile?.role !== "admin") {
     return NextResponse.json({ error: "Interzis" }, { status: 403 });
   }
@@ -64,26 +70,37 @@ export async function POST(request: Request) {
 
   const clientName = (report.clients as unknown as { name: string } | null)?.name ?? "";
   const monthLabel = `${LUNI[report.month - 1]} ${report.year}`;
+  const reportUrl = "https://www.uppr.agency/dashboard";
+  const currentYear = new Date().getFullYear().toString();
+
+  const apiKey = process.env.RESEND_API_KEY;
+  if (!apiKey) {
+    return NextResponse.json({ skipped: "RESEND_API_KEY neconfigurată" });
+  }
 
   const resendResponse = await fetch("https://api.resend.com/emails", {
     method: "POST",
     headers: {
-      Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
+      Authorization: `Bearer ${apiKey}`,
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      from: process.env.RESEND_FROM_EMAIL || "UPPR Agency <onboarding@resend.dev>",
+      from: process.env.RESEND_FROM_EMAIL || "UPPR Agency <info@uppr.agency>",
       to: [clientEmail],
-      subject: `Raportul tău pentru ${monthLabel} e gata`,
-      html: `<p>Bună${clientName ? `, ${clientName}` : ""},</p>
-             <p>Raportul de campanii pentru <strong>${monthLabel}</strong> a fost publicat și e disponibil în dashboard.</p>
-             <p><a href="https://www.uppr.agency/dashboard">Vezi raportul →</a></p>
-             <p style="color:#888;font-size:12px">UPPR Agency</p>`,
+      template_alias: "monthly-report",
+      variables: {
+        month_year: monthLabel,
+        company_name: clientName,
+        dashboard_url: reportUrl,
+        current_year: currentYear,
+        project_name: "UPPR Agency",
+      },
     }),
   });
 
   if (!resendResponse.ok) {
     const detail = await resendResponse.text();
+    console.error("Resend send error:", detail);
     return NextResponse.json({ error: "Trimitere email eșuată", detail }, { status: 502 });
   }
 
