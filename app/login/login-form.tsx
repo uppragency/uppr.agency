@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 export default function LoginForm() {
   const router = useRouter();
@@ -102,13 +103,9 @@ export default function LoginForm() {
         </form>
 
         <p className="text-center mt-5 text-sm">
-          <a
-            href="https://wa.me/40790682363?text=Bun%C4%83%2C%20am%20uitat%20parola%20de%20la%20dashboard"
-            target="_blank"
-            style={{ color: "var(--uppr-violet-3)", fontWeight: 600 }}
-          >
-            Ai uitat parola? Scrie-ne pe WhatsApp →
-          </a>
+          <Link href="/forgot-password" style={{ color: "var(--uppr-violet-3)", fontWeight: 600 }}>
+            Ai uitat parola? →
+          </Link>
         </p>
       </div>
     </div>
