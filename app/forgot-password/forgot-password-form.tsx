@@ -36,37 +36,15 @@ export default function ForgotPasswordForm() {
     <div className="uppr-card w-full max-w-sm" style={{ animation: "riseIn .7s cubic-bezier(.2,.8,.2,1) both" }}>
       <div className="uppr-card-inner">
         <div className="uppr-pill mb-6">
-          <span className="uppr-label" style={{ color: "#D6C6FA" }}>
-            UPPR AGENCY
-          </span>
+          <span className="uppr-label" style={{ color: "#D6C6FA" }}>UPPR AGENCY</span>
         </div>
 
         {sent ? (
           <>
-            <div
-              style={{
-                width: 44,
-                height: 44,
-                borderRadius: 999,
-                background: "rgba(74,222,128,.15)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontSize: 20,
-                marginBottom: 16,
-              }}
-            >
+            <div style={{ width: 44, height: 44, borderRadius: 999, background: "rgba(74,222,128,.15)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20, marginBottom: 16 }}>
               ✉️
             </div>
-            <h1
-              className="mb-2"
-              style={{
-                fontFamily: "var(--font-heading), sans-serif",
-                fontWeight: 700,
-                fontSize: "22px",
-                letterSpacing: "-.02em",
-              }}
-            >
+            <h1 className="mb-2" style={{ fontFamily: "var(--font-heading), sans-serif", fontWeight: 700, fontSize: "22px", letterSpacing: "-.02em" }}>
               Email trimis
             </h1>
             <p className="text-sm mb-6" style={{ color: "var(--uppr-muted)", lineHeight: 1.6 }}>
@@ -78,15 +56,7 @@ export default function ForgotPasswordForm() {
           </>
         ) : (
           <>
-            <h1
-              className="mb-1"
-              style={{
-                fontFamily: "var(--font-heading), sans-serif",
-                fontWeight: 700,
-                fontSize: "26px",
-                letterSpacing: "-.02em",
-              }}
-            >
+            <h1 className="mb-1" style={{ fontFamily: "var(--font-heading), sans-serif", fontWeight: 700, fontSize: "26px", letterSpacing: "-.02em" }}>
               Ai uitat parola?
             </h1>
             <p className="text-sm mb-6" style={{ color: "var(--uppr-muted)" }}>
@@ -95,25 +65,11 @@ export default function ForgotPasswordForm() {
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-1.5">
-                <label htmlFor="email" className="uppr-label block">
-                  Email
-                </label>
-                <input
-                  id="email"
-                  type="email"
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="uppr-input"
-                  placeholder="adresa@ta.com"
-                />
+                <label htmlFor="email" className="uppr-label block">Email</label>
+                <input id="email" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} className="uppr-input" placeholder="adresa@ta.com" />
               </div>
 
-              {error && (
-                <p className="text-sm" style={{ color: "var(--uppr-pink)" }}>
-                  {error}
-                </p>
-              )}
+              {error && <p className="text-sm" style={{ color: "var(--uppr-pink)" }}>{error}</p>}
 
               <button type="submit" disabled={loading} className="uppr-btn-primary w-full">
                 {loading ? "Se trimite..." : "Trimite link de resetare →"}

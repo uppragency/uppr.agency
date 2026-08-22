@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { createBrowserClient } from "@supabase/ssr";
 import Link from "next/link";
 
-export default function ResetPasswordForm() {
+export default function SetPasswordForm() {
   const router = useRouter();
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
@@ -21,7 +21,7 @@ export default function ResetPasswordForm() {
     );
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
-      if (event === "PASSWORD_RECOVERY") {
+      if (event === "PASSWORD_RECOVERY" || event === "SIGNED_IN") {
         setSessionReady(true);
       }
     });
@@ -56,15 +56,15 @@ export default function ResetPasswordForm() {
       return;
     }
 
-    // Notificare confirmare schimbare parolă
+    // Trimitem notificare de confirmare
     try {
       await fetch("/api/auth/password-changed-notify", { method: "POST" });
     } catch {
-      // ignorăm — parola a fost schimbată oricum
+      // ignorăm erori de notificare — parola a fost setată oricum
     }
 
     setDone(true);
-    setTimeout(() => router.push("/login"), 2500);
+    setTimeout(() => router.push("/dashboard"), 2500);
   }
 
   if (done) {
@@ -75,10 +75,10 @@ export default function ResetPasswordForm() {
             ✓
           </div>
           <h1 className="mb-2" style={{ fontFamily: "var(--font-heading), sans-serif", fontWeight: 700, fontSize: "22px" }}>
-            Parolă actualizată
+            Parolă setată cu succes
           </h1>
           <p className="text-sm" style={{ color: "var(--uppr-muted)" }}>
-            Te redirecționăm spre autentificare...
+            Te redirecționăm spre dashboard...
           </p>
         </div>
       </div>
@@ -90,14 +90,8 @@ export default function ResetPasswordForm() {
       <div className="uppr-card w-full max-w-sm" style={{ animation: "riseIn .7s cubic-bezier(.2,.8,.2,1) both" }}>
         <div className="uppr-card-inner text-center">
           <div style={{ width: 36, height: 36, borderRadius: 999, border: "2px solid rgba(168,85,247,.4)", borderTop: "2px solid #A855F7", animation: "spin 1s linear infinite", margin: "0 auto 16px" }} />
-          <p className="text-sm mb-4" style={{ color: "var(--uppr-muted)" }}>
-            Se verifică linkul de resetare...
-          </p>
           <p className="text-sm" style={{ color: "var(--uppr-muted)" }}>
-            Dacă ai ajuns aici din greșeală,{" "}
-            <Link href="/forgot-password" style={{ color: "var(--uppr-violet-3)", fontWeight: 600 }}>
-              cere un link nou
-            </Link>.
+            Se activează contul tău...
           </p>
         </div>
       </div>
@@ -112,29 +106,35 @@ export default function ResetPasswordForm() {
         </div>
 
         <h1 className="mb-1" style={{ fontFamily: "var(--font-heading), sans-serif", fontWeight: 700, fontSize: "26px", letterSpacing: "-.02em" }}>
-          Parolă nouă
+          Setează parola
         </h1>
         <p className="text-sm mb-6" style={{ color: "var(--uppr-muted)" }}>
-          Alege o parolă nouă pentru contul tău.
+          Alege o parolă pentru contul tău și accesează dashboard-ul.
         </p>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-1.5">
-            <label htmlFor="password" className="uppr-label block">Parolă nouă</label>
+            <label htmlFor="password" className="uppr-label block">Parolă</label>
             <input id="password" type="password" required minLength={8} value={password} onChange={(e) => setPassword(e.target.value)} className="uppr-input" placeholder="Minim 8 caractere" />
           </div>
 
           <div className="space-y-1.5">
             <label htmlFor="confirm" className="uppr-label block">Confirmă parola</label>
-            <input id="confirm" type="password" required value={confirm} onChange={(e) => setConfirm(e.target.value)} className="uppr-input" placeholder="Repetă parola nouă" />
+            <input id="confirm" type="password" required value={confirm} onChange={(e) => setConfirm(e.target.value)} className="uppr-input" placeholder="Repetă parola" />
           </div>
 
           {error && <p className="text-sm" style={{ color: "var(--uppr-pink)" }}>{error}</p>}
 
           <button type="submit" disabled={loading} className="uppr-btn-primary w-full">
-            {loading ? "Se salvează..." : "Salvează parola nouă →"}
+            {loading ? "Se activează..." : "Activează contul →"}
           </button>
         </form>
+
+        <p className="text-center mt-5 text-sm">
+          <Link href="/login" style={{ color: "var(--uppr-violet-3)", fontWeight: 600 }}>
+            Ai deja o parolă? Autentifică-te
+          </Link>
+        </p>
       </div>
     </div>
   );

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { computeProfit, computeMargin } from "@/lib/profit";
+import CreateClientButton from "@/components/admin/CreateClientButton";
 
 export default async function AdminClientsPage({
   searchParams,
@@ -63,7 +64,8 @@ export default async function AdminClientsPage({
             Clienți
           </h1>
         </div>
-        <div style={{ display: "flex", gap: 8 }}>
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+          <CreateClientButton />
           <Link
             href="/admin/clients"
             className="uppr-btn-secondary"

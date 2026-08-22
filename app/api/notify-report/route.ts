@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { sendMonthlyReportEmail } from "@/lib/resend-mailer";
 
 const LUNI = [
   "Ianuarie", "Februarie", "Martie", "Aprilie", "Mai", "Iunie",
@@ -70,39 +71,16 @@ export async function POST(request: Request) {
 
   const clientName = (report.clients as unknown as { name: string } | null)?.name ?? "";
   const monthLabel = `${LUNI[report.month - 1]} ${report.year}`;
-  const reportUrl = "https://www.uppr.agency/dashboard";
-  const currentYear = new Date().getFullYear().toString();
 
-  const apiKey = process.env.RESEND_API_KEY;
-  if (!apiKey) {
-    return NextResponse.json({ skipped: "RESEND_API_KEY neconfigurată" });
+  try {
+    await sendMonthlyReportEmail({
+      to: clientEmail,
+      companyName: clientName,
+      monthYear: monthLabel,
+    });
+    return NextResponse.json({ sent: true });
+  } catch (err) {
+    console.error("Resend send error:", err);
+    return NextResponse.json({ error: "Trimitere email eșuată" }, { status: 502 });
   }
-
-  const resendResponse = await fetch("https://api.resend.com/emails", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      from: process.env.RESEND_FROM_EMAIL || "UPPR Agency <info@uppr.agency>",
-      to: [clientEmail],
-      template_alias: "monthly-report",
-      variables: {
-        month_year: monthLabel,
-        company_name: clientName,
-        dashboard_url: reportUrl,
-        current_year: currentYear,
-        project_name: "UPPR Agency",
-      },
-    }),
-  });
-
-  if (!resendResponse.ok) {
-    const detail = await resendResponse.text();
-    console.error("Resend send error:", detail);
-    return NextResponse.json({ error: "Trimitere email eșuată", detail }, { status: 502 });
-  }
-
-  return NextResponse.json({ sent: true });
 }
